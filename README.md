@@ -46,7 +46,9 @@ pod install
 open MacDown.xcworkspace
 ```
 
-Then build and run the **MacDown** scheme in Xcode.
+Then build and run the **MacDown** scheme in Xcode. The app will appear as **MacMark** when run.
+
+> Note: The Xcode workspace and scheme retain the original MacDown name internally. The built app is named MacMark.
 
 ## License
 
