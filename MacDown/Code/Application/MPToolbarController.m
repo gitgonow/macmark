@@ -114,11 +114,11 @@ static CGFloat itemWidth = 37;
     NSToolbarItem *selectedItem = selectedGroup.subitems[selectedIndex];
     
     // Invoke the toolbar item's action
-    // Must convert to IMP to let the compiler know about the method definition
+    // IMP signature must include SEL parameter to match ObjC ABI on all architectures (including ARM64)
     MPDocument *document = self.document;
     IMP imp = [document methodForSelector:selectedItem.action];
-    void (*impFunc)(id) = (void *)imp;
-    impFunc(document);
+    void (*impFunc)(id, SEL) = (void *)imp;
+    impFunc(document, selectedItem.action);
 }
 
 
