@@ -10,8 +10,8 @@
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #import <WebKit/WebKit.h>
 #import <JJPluralForm/JJPluralForm.h>
-#import <hoedown/html.h>
-#import "hoedown_html_patch.h"
+#import <cmark-gfm.h>
+#import "cmark_macdown_extensions.h"
 #import "HGMarkdownHighlighter.h"
 #import "MPUtilities.h"
 #import "MPAutosaving.h"
@@ -124,34 +124,57 @@ NS_INLINE NSColor *MPGetWebViewBackgroundColor(WebView *webview)
 @end
 
 
-@implementation MPPreferences (Hoedown)
+// Extension flags use a simple bitfield to communicate which cmark-gfm
+// extensions should be attached. These are MacDown-internal flags, not
+// cmark constants.
+//   Bit 0  = autolink
+//   Bit 1  = tables
+//   Bit 2  = strikethrough
+//   Bit 3  = superscript
+//   Bit 4  = highlight
+//   Bit 5  = quote
+//   Bit 6  = underline
+//   Bit 7  = fenced code (always on in cmark-gfm; kept for preference compat)
+//   Bit 8  = no intra-emphasis (informational; cmark default)
+//   Bit 9  = (reserved)
+//   Bit 10 = footnotes
+//   Bit 11 = math (handled via pre-processing, not parser flag)
+//   Bit 12 = math explicit/inline dollar (handled via pre-processing)
+//
+// Renderer flags:
+//   Bit 0 = task list
+//   Bit 1 = line numbers
+//   Bit 2 = hard wrap
+//   Bit 3 = code block information
+
+@implementation MPPreferences (CmarkGFM)
 - (int)extensionFlags
 {
     int flags = 0;
     if (self.extensionAutolink)
-        flags |= HOEDOWN_EXT_AUTOLINK;
-    if (self.extensionFencedCode)
-        flags |= HOEDOWN_EXT_FENCED_CODE;
-    if (self.extensionFootnotes)
-        flags |= HOEDOWN_EXT_FOOTNOTES;
-    if (self.extensionHighlight)
-        flags |= HOEDOWN_EXT_HIGHLIGHT;
-    if (!self.extensionIntraEmphasis)
-        flags |= HOEDOWN_EXT_NO_INTRA_EMPHASIS;
-    if (self.extensionQuote)
-        flags |= HOEDOWN_EXT_QUOTE;
-    if (self.extensionStrikethough)
-        flags |= HOEDOWN_EXT_STRIKETHROUGH;
-    if (self.extensionSuperscript)
-        flags |= HOEDOWN_EXT_SUPERSCRIPT;
+        flags |= (1 << 0);
     if (self.extensionTables)
-        flags |= HOEDOWN_EXT_TABLES;
+        flags |= (1 << 1);
+    if (self.extensionStrikethough)
+        flags |= (1 << 2);
+    if (self.extensionSuperscript)
+        flags |= (1 << 3);
+    if (self.extensionHighlight)
+        flags |= (1 << 4);
+    if (self.extensionQuote)
+        flags |= (1 << 5);
     if (self.extensionUnderline)
-        flags |= HOEDOWN_EXT_UNDERLINE;
+        flags |= (1 << 6);
+    if (self.extensionFencedCode)
+        flags |= (1 << 7);
+    if (!self.extensionIntraEmphasis)
+        flags |= (1 << 8);
+    if (self.extensionFootnotes)
+        flags |= (1 << 10);
     if (self.htmlMathJax)
-        flags |= HOEDOWN_EXT_MATH;
+        flags |= (1 << 11);
     if (self.htmlMathJaxInlineDollar)
-        flags |= HOEDOWN_EXT_MATH_EXPLICIT;
+        flags |= (1 << 12);
     return flags;
 }
 
@@ -159,13 +182,13 @@ NS_INLINE NSColor *MPGetWebViewBackgroundColor(WebView *webview)
 {
     int flags = 0;
     if (self.htmlTaskList)
-        flags |= HOEDOWN_HTML_USE_TASK_LIST;
+        flags |= (1 << 0);
     if (self.htmlLineNumbers)
-        flags |= HOEDOWN_HTML_BLOCKCODE_LINE_NUMBERS;
+        flags |= (1 << 1);
     if (self.htmlHardWrap)
-        flags |= HOEDOWN_HTML_HARD_WRAP;
+        flags |= (1 << 2);
     if (self.htmlCodeBlockAccessory == MPCodeBlockAccessoryCustom)
-        flags |= HOEDOWN_HTML_BLOCKCODE_INFORMATION;
+        flags |= (1 << 3);
     return flags;
 }
 @end

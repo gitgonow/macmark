@@ -63,7 +63,6 @@
 		1FA6DE251941CC9E000409FB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FA6DE241941CC9E000409FB /* Cocoa.framework */; };
 		1FA6DE481941CC9E000409FB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FA6DE241941CC9E000409FB /* Cocoa.framework */; };
 		1FB3C0241E5061A2002AEB6A /* MPExportPanelAccessoryViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FB3C0221E5061A2002AEB6A /* MPExportPanelAccessoryViewController.xib */; };
-		1FBBD4CB194CA36500BB3C88 /* hoedown_html_patch.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FBBD4CA194CA36500BB3C88 /* hoedown_html_patch.c */; };
 		1FBDFE9C196170FE00BEEA70 /* Extensions in Resources */ = {isa = PBXBuildFile; fileRef = 1FBDFE9B196170FE00BEEA70 /* Extensions */; };
 		1FBDFEA11962A25A00BEEA70 /* MPGeneralPreferencesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FBDFE9F1962A25A00BEEA70 /* MPGeneralPreferencesViewController.m */; };
 		1FBDFEA51962A27300BEEA70 /* MPGeneralPreferencesViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FBDFEA31962A27300BEEA70 /* MPGeneralPreferencesViewController.xib */; };
@@ -91,6 +90,45 @@
 		905EF1B7196164F300FC3CE9 /* macdown in Copy Command Line Utility */ = {isa = PBXBuildFile; fileRef = 905EF1A7196164CA00FC3CE9 /* macdown */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		B5C5C1666A506FEA86435D25 /* libPods-macdown-cmd.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 263367245B2D78A42C2F19D7 /* libPods-macdown-cmd.a */; };
 		EBFE3157737058F5A63699C8 /* libPods-MacDownTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C949FDE45493AE77DAD9BF4 /* libPods-MacDownTests.a */; };
+		4C177B6E604F407BBBA57410 /* cmark_ext_superscript.c in Sources */ = {isa = PBXBuildFile; fileRef = D7FECB03FE0E4C49AD806D80 /* cmark_ext_superscript.c */; };
+		307D7077423E47649D615BC5 /* cmark_ext_highlight.c in Sources */ = {isa = PBXBuildFile; fileRef = 46E7AD8B925D49178F9C9529 /* cmark_ext_highlight.c */; };
+		A856808EB9A749648CD9E723 /* cmark_ext_quote.c in Sources */ = {isa = PBXBuildFile; fileRef = 5DB2A4935A3449AC819F3535 /* cmark_ext_quote.c */; };
+		6EB27FB48C1449649FFB37E1 /* cmark_ext_underline.c in Sources */ = {isa = PBXBuildFile; fileRef = 57D585BF02C24CC3B366F3BE /* cmark_ext_underline.c */; };
+		B589C809C95F4E519B3BF1C8 /* cmark_macdown_extensions.c in Sources */ = {isa = PBXBuildFile; fileRef = D2F9695A657841A995A35D4E /* cmark_macdown_extensions.c */; };
+		DEC7DC8496BD43E4B6048B56 /* arena.c in Sources */ = {isa = PBXBuildFile; fileRef = CA5E88D773FF4544B9DEE898 /* arena.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		D29E88017FD8470B9CCDAE1E /* blocks.c in Sources */ = {isa = PBXBuildFile; fileRef = B2D01D9F43054D58AE3AE021 /* blocks.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		D172A1A2233B42F1B57555FF /* buffer.c in Sources */ = {isa = PBXBuildFile; fileRef = A245AE82F09E431F999ED49F /* buffer.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		1E2AEDC70FC046D68A9B1622 /* cmark_ctype.c in Sources */ = {isa = PBXBuildFile; fileRef = A6971A16CF9D43CF96452A0F /* cmark_ctype.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		91112506BC0843E486CABB45 /* cmark.c in Sources */ = {isa = PBXBuildFile; fileRef = 3399D6672BB143C7B3297169 /* cmark.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		91199F7291D345ABB75D2ADE /* commonmark.c in Sources */ = {isa = PBXBuildFile; fileRef = 1DE7395CEC52462B9D6A6ABA /* commonmark.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		AA4DB5899DBF4F18BC250F82 /* footnotes.c in Sources */ = {isa = PBXBuildFile; fileRef = 484DAEA179464E0886157AA2 /* footnotes.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		0040C278E0E944C6BC5BFF3C /* houdini_href_e.c in Sources */ = {isa = PBXBuildFile; fileRef = D4BB6778BA404C8B87C428DF /* houdini_href_e.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		E14DD51F3A6B430995811DF0 /* houdini_html_e.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FBD581DF59A479BBC37F7B8 /* houdini_html_e.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		D3944ED2DAAA489FB6D4C1E5 /* houdini_html_u.c in Sources */ = {isa = PBXBuildFile; fileRef = 0F0A90AB14AB4E5A9368722E /* houdini_html_u.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		D13DB7CCD1CA4B77B4A50FB3 /* html.c in Sources */ = {isa = PBXBuildFile; fileRef = B1F67F1D61224C43BB567365 /* html.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		420AF84E4A0A4D579F86CE9D /* inlines.c in Sources */ = {isa = PBXBuildFile; fileRef = 2DDADBC2A534412ABBE56F7C /* inlines.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		83752BDF5B6F4656AEF89A2C /* iterator.c in Sources */ = {isa = PBXBuildFile; fileRef = ADE47DBE2E054C04B6FC2191 /* iterator.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		BCA202BB02B44E3796FF6B98 /* latex.c in Sources */ = {isa = PBXBuildFile; fileRef = 6E0561C5924D4DF6AD964B1C /* latex.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		4C826C90286C4555848B81D6 /* linked_list.c in Sources */ = {isa = PBXBuildFile; fileRef = B06414B45A654ED796B754B2 /* linked_list.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		594C2406596143A5B7842CF0 /* man.c in Sources */ = {isa = PBXBuildFile; fileRef = 4096D9F930AF4E1B964DE1CC /* man.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		062FB3F141AD4567ABDA424B /* map.c in Sources */ = {isa = PBXBuildFile; fileRef = 9151C1032ACA49A8B03A9E32 /* map.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		A27B092840CD4ABFB4A979AE /* node.c in Sources */ = {isa = PBXBuildFile; fileRef = 638D67F2AFB147C8BECC9716 /* node.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		39758CBE21DB4175A055D965 /* plaintext.c in Sources */ = {isa = PBXBuildFile; fileRef = 497BC33CDC994C29AE56A8FC /* plaintext.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		0DD7191CFB4D4699B66C1C6A /* plugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 94452D126D334EA1BCAFD8C4 /* plugin.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		6207846AD8FE4DD9BA1DAB63 /* references.c in Sources */ = {isa = PBXBuildFile; fileRef = B3E20F2E7C48410086BAB1A8 /* references.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		C15795D319C54B25AC622AA8 /* registry.c in Sources */ = {isa = PBXBuildFile; fileRef = EF901EA4593142F7A566202D /* registry.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		9C7F110C032D40499BC194DA /* render.c in Sources */ = {isa = PBXBuildFile; fileRef = F74AC5FE964244D98D2E1E11 /* render.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		8171637CB06E4CC287FCD4DB /* scanners.c in Sources */ = {isa = PBXBuildFile; fileRef = DC1E0536CBB045FD85AC47AC /* scanners.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		515C1A40145B4EC89FB63BD5 /* syntax_extension.c in Sources */ = {isa = PBXBuildFile; fileRef = C1D8813AF5C44C0CAA161B1B /* syntax_extension.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		C6A7451085B34490A2A584DE /* utf8.c in Sources */ = {isa = PBXBuildFile; fileRef = 1394DB3796A44C9688A1D781 /* utf8.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		81A8751116694CF1ABD19427 /* xml.c in Sources */ = {isa = PBXBuildFile; fileRef = 09223779F5654991A1F0FDC4 /* xml.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		96F22294D1E84D26B3F017CC /* autolink.c in Sources */ = {isa = PBXBuildFile; fileRef = 83FD816CEA6A48C5B33342CD /* autolink.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		7835BC9E8AC94049BAD971DF /* core-extensions.c in Sources */ = {isa = PBXBuildFile; fileRef = 4BA3F1C916314C0FA179FF83 /* core-extensions.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		63275EF1D6E54F6091AA3CE6 /* ext_scanners.c in Sources */ = {isa = PBXBuildFile; fileRef = 4697FB3012E2473FA34E041B /* ext_scanners.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		99DF5E2E003F4E389299D12A /* strikethrough.c in Sources */ = {isa = PBXBuildFile; fileRef = F3C6C462C9444554B71A59B6 /* strikethrough.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		93261CF05B9B43D48E72537D /* table.c in Sources */ = {isa = PBXBuildFile; fileRef = F3587DC435A442659B9F5B31 /* table.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		49A46710A7EB421FB69C5A7B /* tagfilter.c in Sources */ = {isa = PBXBuildFile; fileRef = 29F071D5737448DBB7908532 /* tagfilter.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		2E29D98E37404443B85F6B60 /* tasklist.c in Sources */ = {isa = PBXBuildFile; fileRef = 223AD7C15C074587BC88141D /* tasklist.c */; settings = {COMPILER_FLAGS = "-w"; }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -525,6 +563,51 @@
 		E77E5D72241C935100699B5A /* da-DK */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "da-DK"; path = "Localization/da-DK.lproj/MPDocument.strings"; sourceTree = "<group>"; };
 		E7D458CB241C933800411A36 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fi; path = Localization/fi.lproj/MainMenu.strings; sourceTree = "<group>"; };
 		E7DD09F1241C9368008FBC25 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = Localization/da.lproj/MainMenu.strings; sourceTree = "<group>"; };
+		753EAF9D32E04588ABEEA844 /* cmark_ext_superscript.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cmark_ext_superscript.h; sourceTree = "<group>"; };
+		D7FECB03FE0E4C49AD806D80 /* cmark_ext_superscript.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cmark_ext_superscript.c; sourceTree = "<group>"; };
+		66A5B32FA7E4424CBAD5B393 /* cmark_ext_highlight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cmark_ext_highlight.h; sourceTree = "<group>"; };
+		46E7AD8B925D49178F9C9529 /* cmark_ext_highlight.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cmark_ext_highlight.c; sourceTree = "<group>"; };
+		79E95FAF94364E8E9C459520 /* cmark_ext_quote.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cmark_ext_quote.h; sourceTree = "<group>"; };
+		5DB2A4935A3449AC819F3535 /* cmark_ext_quote.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cmark_ext_quote.c; sourceTree = "<group>"; };
+		F3DEFCAF7D3E47D48101049A /* cmark_ext_underline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cmark_ext_underline.h; sourceTree = "<group>"; };
+		57D585BF02C24CC3B366F3BE /* cmark_ext_underline.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cmark_ext_underline.c; sourceTree = "<group>"; };
+		2852FB23AD464D0DB442D18F /* cmark_ext_footnotes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cmark_ext_footnotes.h; sourceTree = "<group>"; };
+		314C38D431C84F01A9CE491F /* cmark_macdown_extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cmark_macdown_extensions.h; sourceTree = "<group>"; };
+		D2F9695A657841A995A35D4E /* cmark_macdown_extensions.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cmark_macdown_extensions.c; sourceTree = "<group>"; };
+		CA5E88D773FF4544B9DEE898 /* arena.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = arena.c; path = Dependency/cmark-gfm/src/arena.c; sourceTree = "<group>"; };
+		B2D01D9F43054D58AE3AE021 /* blocks.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = blocks.c; path = Dependency/cmark-gfm/src/blocks.c; sourceTree = "<group>"; };
+		A245AE82F09E431F999ED49F /* buffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = buffer.c; path = Dependency/cmark-gfm/src/buffer.c; sourceTree = "<group>"; };
+		A6971A16CF9D43CF96452A0F /* cmark_ctype.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmark_ctype.c; path = Dependency/cmark-gfm/src/cmark_ctype.c; sourceTree = "<group>"; };
+		3399D6672BB143C7B3297169 /* cmark.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmark.c; path = Dependency/cmark-gfm/src/cmark.c; sourceTree = "<group>"; };
+		1DE7395CEC52462B9D6A6ABA /* commonmark.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = commonmark.c; path = Dependency/cmark-gfm/src/commonmark.c; sourceTree = "<group>"; };
+		484DAEA179464E0886157AA2 /* footnotes.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = footnotes.c; path = Dependency/cmark-gfm/src/footnotes.c; sourceTree = "<group>"; };
+		D4BB6778BA404C8B87C428DF /* houdini_href_e.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = houdini_href_e.c; path = Dependency/cmark-gfm/src/houdini_href_e.c; sourceTree = "<group>"; };
+		1FBD581DF59A479BBC37F7B8 /* houdini_html_e.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = houdini_html_e.c; path = Dependency/cmark-gfm/src/houdini_html_e.c; sourceTree = "<group>"; };
+		0F0A90AB14AB4E5A9368722E /* houdini_html_u.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = houdini_html_u.c; path = Dependency/cmark-gfm/src/houdini_html_u.c; sourceTree = "<group>"; };
+		B1F67F1D61224C43BB567365 /* html.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = html.c; path = Dependency/cmark-gfm/src/html.c; sourceTree = "<group>"; };
+		2DDADBC2A534412ABBE56F7C /* inlines.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = inlines.c; path = Dependency/cmark-gfm/src/inlines.c; sourceTree = "<group>"; };
+		ADE47DBE2E054C04B6FC2191 /* iterator.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = iterator.c; path = Dependency/cmark-gfm/src/iterator.c; sourceTree = "<group>"; };
+		6E0561C5924D4DF6AD964B1C /* latex.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = latex.c; path = Dependency/cmark-gfm/src/latex.c; sourceTree = "<group>"; };
+		B06414B45A654ED796B754B2 /* linked_list.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = linked_list.c; path = Dependency/cmark-gfm/src/linked_list.c; sourceTree = "<group>"; };
+		4096D9F930AF4E1B964DE1CC /* man.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = man.c; path = Dependency/cmark-gfm/src/man.c; sourceTree = "<group>"; };
+		9151C1032ACA49A8B03A9E32 /* map.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = map.c; path = Dependency/cmark-gfm/src/map.c; sourceTree = "<group>"; };
+		638D67F2AFB147C8BECC9716 /* node.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = node.c; path = Dependency/cmark-gfm/src/node.c; sourceTree = "<group>"; };
+		497BC33CDC994C29AE56A8FC /* plaintext.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = plaintext.c; path = Dependency/cmark-gfm/src/plaintext.c; sourceTree = "<group>"; };
+		94452D126D334EA1BCAFD8C4 /* plugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = plugin.c; path = Dependency/cmark-gfm/src/plugin.c; sourceTree = "<group>"; };
+		B3E20F2E7C48410086BAB1A8 /* references.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = references.c; path = Dependency/cmark-gfm/src/references.c; sourceTree = "<group>"; };
+		EF901EA4593142F7A566202D /* registry.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = registry.c; path = Dependency/cmark-gfm/src/registry.c; sourceTree = "<group>"; };
+		F74AC5FE964244D98D2E1E11 /* render.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = render.c; path = Dependency/cmark-gfm/src/render.c; sourceTree = "<group>"; };
+		DC1E0536CBB045FD85AC47AC /* scanners.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = scanners.c; path = Dependency/cmark-gfm/src/scanners.c; sourceTree = "<group>"; };
+		C1D8813AF5C44C0CAA161B1B /* syntax_extension.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = syntax_extension.c; path = Dependency/cmark-gfm/src/syntax_extension.c; sourceTree = "<group>"; };
+		1394DB3796A44C9688A1D781 /* utf8.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = utf8.c; path = Dependency/cmark-gfm/src/utf8.c; sourceTree = "<group>"; };
+		09223779F5654991A1F0FDC4 /* xml.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = xml.c; path = Dependency/cmark-gfm/src/xml.c; sourceTree = "<group>"; };
+		83FD816CEA6A48C5B33342CD /* autolink.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = autolink.c; path = Dependency/cmark-gfm/extensions/autolink.c; sourceTree = "<group>"; };
+		4BA3F1C916314C0FA179FF83 /* core-extensions.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = core-extensions.c; path = Dependency/cmark-gfm/extensions/core-extensions.c; sourceTree = "<group>"; };
+		4697FB3012E2473FA34E041B /* ext_scanners.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ext_scanners.c; path = Dependency/cmark-gfm/extensions/ext_scanners.c; sourceTree = "<group>"; };
+		F3C6C462C9444554B71A59B6 /* strikethrough.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = strikethrough.c; path = Dependency/cmark-gfm/extensions/strikethrough.c; sourceTree = "<group>"; };
+		F3587DC435A442659B9F5B31 /* table.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = table.c; path = Dependency/cmark-gfm/extensions/table.c; sourceTree = "<group>"; };
+		29F071D5737448DBB7908532 /* tagfilter.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = tagfilter.c; path = Dependency/cmark-gfm/extensions/tagfilter.c; sourceTree = "<group>"; };
+		223AD7C15C074587BC88141D /* tasklist.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = tasklist.c; path = Dependency/cmark-gfm/extensions/tasklist.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -583,8 +666,17 @@
 				1F847BC41DCC9DB600A47385 /* NSUserDefaults+Suite.h */,
 				1F847BC51DCC9DB600A47385 /* NSUserDefaults+Suite.m */,
 				3D175F0F1974282400A5EFE8 /* WebView+WebViewPrivateHeaders.h */,
-				1FBBD4C9194CA35900BB3C88 /* hoedown_html_patch.h */,
-				1FBBD4CA194CA36500BB3C88 /* hoedown_html_patch.c */,
+				753EAF9D32E04588ABEEA844 /* cmark_ext_superscript.h */,
+				D7FECB03FE0E4C49AD806D80 /* cmark_ext_superscript.c */,
+				66A5B32FA7E4424CBAD5B393 /* cmark_ext_highlight.h */,
+				46E7AD8B925D49178F9C9529 /* cmark_ext_highlight.c */,
+				79E95FAF94364E8E9C459520 /* cmark_ext_quote.h */,
+				5DB2A4935A3449AC819F3535 /* cmark_ext_quote.c */,
+				F3DEFCAF7D3E47D48101049A /* cmark_ext_underline.h */,
+				57D585BF02C24CC3B366F3BE /* cmark_ext_underline.c */,
+				2852FB23AD464D0DB442D18F /* cmark_ext_footnotes.h */,
+				314C38D431C84F01A9CE491F /* cmark_macdown_extensions.h */,
+				D2F9695A657841A995A35D4E /* cmark_macdown_extensions.c */,
 			);
 			name = Extension;
 			path = Code/Extension;
@@ -896,6 +988,49 @@
 				7A8EA75FA95818275755F0B6 /* Pods-macdown-cmd.release.xcconfig */,
 			);
 			name = Pods;
+			sourceTree = "<group>";
+		};
+
+		6F6528B835594F909A9C2FF0 /* cmark-gfm */ = {
+			isa = PBXGroup;
+			children = (
+				CA5E88D773FF4544B9DEE898 /* arena.c */,
+				B2D01D9F43054D58AE3AE021 /* blocks.c */,
+				A245AE82F09E431F999ED49F /* buffer.c */,
+				A6971A16CF9D43CF96452A0F /* cmark_ctype.c */,
+				3399D6672BB143C7B3297169 /* cmark.c */,
+				1DE7395CEC52462B9D6A6ABA /* commonmark.c */,
+				484DAEA179464E0886157AA2 /* footnotes.c */,
+				D4BB6778BA404C8B87C428DF /* houdini_href_e.c */,
+				1FBD581DF59A479BBC37F7B8 /* houdini_html_e.c */,
+				0F0A90AB14AB4E5A9368722E /* houdini_html_u.c */,
+				B1F67F1D61224C43BB567365 /* html.c */,
+				2DDADBC2A534412ABBE56F7C /* inlines.c */,
+				ADE47DBE2E054C04B6FC2191 /* iterator.c */,
+				6E0561C5924D4DF6AD964B1C /* latex.c */,
+				B06414B45A654ED796B754B2 /* linked_list.c */,
+				4096D9F930AF4E1B964DE1CC /* man.c */,
+				9151C1032ACA49A8B03A9E32 /* map.c */,
+				638D67F2AFB147C8BECC9716 /* node.c */,
+				497BC33CDC994C29AE56A8FC /* plaintext.c */,
+				94452D126D334EA1BCAFD8C4 /* plugin.c */,
+				B3E20F2E7C48410086BAB1A8 /* references.c */,
+				EF901EA4593142F7A566202D /* registry.c */,
+				F74AC5FE964244D98D2E1E11 /* render.c */,
+				DC1E0536CBB045FD85AC47AC /* scanners.c */,
+				C1D8813AF5C44C0CAA161B1B /* syntax_extension.c */,
+				1394DB3796A44C9688A1D781 /* utf8.c */,
+				09223779F5654991A1F0FDC4 /* xml.c */,
+				83FD816CEA6A48C5B33342CD /* autolink.c */,
+				4BA3F1C916314C0FA179FF83 /* core-extensions.c */,
+				4697FB3012E2473FA34E041B /* ext_scanners.c */,
+				F3C6C462C9444554B71A59B6 /* strikethrough.c */,
+				F3587DC435A442659B9F5B31 /* table.c */,
+				29F071D5737448DBB7908532 /* tagfilter.c */,
+				223AD7C15C074587BC88141D /* tasklist.c */,
+			);
+			name = "cmark-gfm";
+			path = "Dependency/cmark-gfm";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1250,7 +1385,45 @@
 				1FBDFEA11962A25A00BEEA70 /* MPGeneralPreferencesViewController.m in Sources */,
 				1F9A14ED194EEE9900D1C6A9 /* MPMainController.m in Sources */,
 				1F002A23195B3DAE008B8D93 /* MPRenderer.m in Sources */,
-				1FBBD4CB194CA36500BB3C88 /* hoedown_html_patch.c in Sources */,
+				4C177B6E604F407BBBA57410 /* cmark_ext_superscript.c in Sources */,
+				307D7077423E47649D615BC5 /* cmark_ext_highlight.c in Sources */,
+				A856808EB9A749648CD9E723 /* cmark_ext_quote.c in Sources */,
+				6EB27FB48C1449649FFB37E1 /* cmark_ext_underline.c in Sources */,
+				B589C809C95F4E519B3BF1C8 /* cmark_macdown_extensions.c in Sources */,
+				DEC7DC8496BD43E4B6048B56 /* arena.c in Sources */,
+				D29E88017FD8470B9CCDAE1E /* blocks.c in Sources */,
+				D172A1A2233B42F1B57555FF /* buffer.c in Sources */,
+				1E2AEDC70FC046D68A9B1622 /* cmark_ctype.c in Sources */,
+				91112506BC0843E486CABB45 /* cmark.c in Sources */,
+				91199F7291D345ABB75D2ADE /* commonmark.c in Sources */,
+				AA4DB5899DBF4F18BC250F82 /* footnotes.c in Sources */,
+				0040C278E0E944C6BC5BFF3C /* houdini_href_e.c in Sources */,
+				E14DD51F3A6B430995811DF0 /* houdini_html_e.c in Sources */,
+				D3944ED2DAAA489FB6D4C1E5 /* houdini_html_u.c in Sources */,
+				D13DB7CCD1CA4B77B4A50FB3 /* html.c in Sources */,
+				420AF84E4A0A4D579F86CE9D /* inlines.c in Sources */,
+				83752BDF5B6F4656AEF89A2C /* iterator.c in Sources */,
+				BCA202BB02B44E3796FF6B98 /* latex.c in Sources */,
+				4C826C90286C4555848B81D6 /* linked_list.c in Sources */,
+				594C2406596143A5B7842CF0 /* man.c in Sources */,
+				062FB3F141AD4567ABDA424B /* map.c in Sources */,
+				A27B092840CD4ABFB4A979AE /* node.c in Sources */,
+				39758CBE21DB4175A055D965 /* plaintext.c in Sources */,
+				0DD7191CFB4D4699B66C1C6A /* plugin.c in Sources */,
+				6207846AD8FE4DD9BA1DAB63 /* references.c in Sources */,
+				C15795D319C54B25AC622AA8 /* registry.c in Sources */,
+				9C7F110C032D40499BC194DA /* render.c in Sources */,
+				8171637CB06E4CC287FCD4DB /* scanners.c in Sources */,
+				515C1A40145B4EC89FB63BD5 /* syntax_extension.c in Sources */,
+				C6A7451085B34490A2A584DE /* utf8.c in Sources */,
+				81A8751116694CF1ABD19427 /* xml.c in Sources */,
+				96F22294D1E84D26B3F017CC /* autolink.c in Sources */,
+				7835BC9E8AC94049BAD971DF /* core-extensions.c in Sources */,
+				63275EF1D6E54F6091AA3CE6 /* ext_scanners.c in Sources */,
+				99DF5E2E003F4E389299D12A /* strikethrough.c in Sources */,
+				93261CF05B9B43D48E72537D /* table.c in Sources */,
+				49A46710A7EB421FB69C5A7B /* tagfilter.c in Sources */,
+				2E29D98E37404443B85F6B60 /* tasklist.c in Sources */,
 				1F8A8364195346B200B6BF69 /* pmh_styleparser.c in Sources */,
 				1F0D9D93194AC852008E1856 /* MPDocument.m in Sources */,
 				1F96BD801E584A03005E0456 /* MPHomebrewSubprocessController.m in Sources */,
@@ -1757,6 +1930,13 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MacDown/Code/MacDown-Prefix.pch";
 				INFOPLIST_FILE = "MacDown/MacDown-Info.plist";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Dependency/cmark-gfm/src",
+					"$(SRCROOT)/Dependency/cmark-gfm/build",
+					"$(SRCROOT)/Dependency/cmark-gfm/extensions",
+					"$(SRCROOT)/MacDown/Code/Extension",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.uranusjr.${PRODUCT_NAME:rfc1034identifier:lower}-debug";
 				PRODUCT_NAME = MacDown;
@@ -1775,6 +1955,13 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MacDown/Code/MacDown-Prefix.pch";
 				INFOPLIST_FILE = "MacDown/MacDown-Info.plist";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Dependency/cmark-gfm/src",
+					"$(SRCROOT)/Dependency/cmark-gfm/build",
+					"$(SRCROOT)/Dependency/cmark-gfm/extensions",
+					"$(SRCROOT)/MacDown/Code/Extension",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.uranusjr.${PRODUCT_NAME:rfc1034identifier:lower}";
 				PRODUCT_NAME = MacDown;
