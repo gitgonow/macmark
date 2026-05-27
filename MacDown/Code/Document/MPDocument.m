@@ -7,6 +7,7 @@
 //
 
 #import "MPDocument.h"
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #import <WebKit/WebKit.h>
 #import <JJPluralForm/JJPluralForm.h>
 #import <hoedown/html.h>
@@ -593,7 +594,16 @@ static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
         }
     });
     
-    savePanel.allowedFileTypes = supportedExtensions;
+    if (@available(macOS 12.0, *)) {
+        NSMutableArray<UTType *> *contentTypes = [NSMutableArray array];
+        for (NSString *ext in supportedExtensions) {
+            UTType *type = [UTType typeWithFilenameExtension:ext];
+            if (type) [contentTypes addObject:type];
+        }
+        savePanel.allowedContentTypes = contentTypes;
+    } else {
+        savePanel.allowedFileTypes = supportedExtensions;
+    }
     savePanel.allowsOtherFileTypes = YES; // Allow all extensions.
     
     return [super prepareSavePanel:savePanel];
@@ -1237,7 +1247,11 @@ static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
 - (IBAction)exportHtml:(id)sender
 {
     NSSavePanel *panel = [NSSavePanel savePanel];
-    panel.allowedFileTypes = @[@"html"];
+    if (@available(macOS 12.0, *)) {
+        panel.allowedContentTypes = @[UTTypeHTML];
+    } else {
+        panel.allowedFileTypes = @[@"html"];
+    }
     if (self.presumedFileName)
         panel.nameFieldStringValue = self.presumedFileName;
 
@@ -1263,7 +1277,11 @@ static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
 - (IBAction)exportPdf:(id)sender
 {
     NSSavePanel *panel = [NSSavePanel savePanel];
-    panel.allowedFileTypes = @[@"pdf"];
+    if (@available(macOS 12.0, *)) {
+        panel.allowedContentTypes = @[UTTypePDF];
+    } else {
+        panel.allowedFileTypes = @[@"pdf"];
+    }
     if (self.presumedFileName)
         panel.nameFieldStringValue = self.presumedFileName;
     
@@ -1699,7 +1717,8 @@ static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
     [previewContentView setNeedsDisplay:YES];
 #else
     // Warning: this is private webkit API and NOT App Store-safe!
-    [self.preview setPageSizeMultiplier:scale];
+    if ([self.preview respondsToSelector:@selector(setPageSizeMultiplier:)])
+        [self.preview setPageSizeMultiplier:scale];
 #endif
 }
 

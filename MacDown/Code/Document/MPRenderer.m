@@ -544,14 +544,16 @@ NS_INLINE void MPFreeHTMLRenderer(hoedown_renderer *htmlRenderer)
         // Parse in backgound
         [self parseMarkdown:markdown];
         
-        // Wait untils is renderer has finished loading OR until the maxDelay has passed
-        // This should result in overall faster update times
-        NSDate *start = [NSDate date];
-        __block BOOL rendererIsLoading = true;
-        while (rendererIsLoading || [start timeIntervalSinceNow] >= maxDelay) {
-            dispatch_sync(dispatch_get_main_queue(), ^{
-                rendererIsLoading = [self.dataSource rendererLoading];
-            });
+        // Wait for renderer to finish loading, up to maxDelay seconds.
+        if (maxDelay > 0) {
+            NSDate *start = [NSDate date];
+            __block BOOL rendererIsLoading = YES;
+            while (rendererIsLoading && -[start timeIntervalSinceNow] < maxDelay) {
+                usleep(10000); // 10ms sleep to avoid busy-spinning
+                dispatch_sync(dispatch_get_main_queue(), ^{
+                    rendererIsLoading = [self.dataSource rendererLoading];
+                });
+            }
         }
         
         // Render on main thread

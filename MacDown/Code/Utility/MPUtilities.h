@@ -39,8 +39,5 @@ NSDictionary *MPGetDataMap(NSString *name);
 id MPGetObjectFromJavaScript(NSString *code, NSString *variableName);
 
 
-static void (^MPDocumentOpenCompletionEmpty)(
-        NSDocument *doc, BOOL wasOpen, NSError *error) = ^(
-        NSDocument *doc, BOOL wasOpen, NSError *error) {
-
-};
+@class NSDocument;
+extern void (^MPDocumentOpenCompletionEmpty)(NSDocument *doc, BOOL wasOpen, NSError *error);

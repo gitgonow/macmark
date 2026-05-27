@@ -9,6 +9,10 @@
 #import "MPUtilities.h"
 #import "NSString+Lookup.h"
 #import <JavaScriptCore/JavaScriptCore.h>
+#import <AppKit/AppKit.h>
+
+void (^MPDocumentOpenCompletionEmpty)(NSDocument *doc, BOOL wasOpen, NSError *error) =
+    ^(NSDocument *doc, BOOL wasOpen, NSError *error) {};
 
 NSString * const kMPStylesDirectoryName = @"Styles";
 NSString * const kMPStyleFileExtension = @"css";
@@ -87,16 +91,16 @@ NSString *(^MPFileNameHasExtensionProcessor(NSString *ext))(NSString *path)
 BOOL MPCharacterIsWhitespace(unichar character)
 {
     static NSCharacterSet *whitespaces = nil;
-    if (!whitespaces)
-        whitespaces = [NSCharacterSet whitespaceCharacterSet];
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{ whitespaces = [NSCharacterSet whitespaceCharacterSet]; });
     return [whitespaces characterIsMember:character];
 }
 
 BOOL MPCharacterIsNewline(unichar character)
 {
     static NSCharacterSet *newlines = nil;
-    if (!newlines)
-        newlines = [NSCharacterSet newlineCharacterSet];
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{ newlines = [NSCharacterSet newlineCharacterSet]; });
     return [newlines characterIsMember:character];
 }
 
