@@ -160,7 +160,11 @@ NSDictionary *MPGetDataMap(NSString *name)
     NSBundle *bundle = [NSBundle mainBundle];
     NSString *filePath = [bundle pathForResource:name ofType:@"map"
                                      inDirectory:@"Data"];
-    return [NSKeyedUnarchiver unarchiveObjectWithFile:filePath];
+    NSData *data = [NSData dataWithContentsOfFile:filePath];
+    if (!data)
+        return nil;
+    return [NSKeyedUnarchiver unarchivedObjectOfClass:[NSDictionary class]
+                                            fromData:data error:NULL];
 }
 
 id MPGetObjectFromJavaScript(NSString *code, NSString *variableName)

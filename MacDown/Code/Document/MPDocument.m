@@ -230,11 +230,6 @@ static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
     __weak MPDocument *weakObj = doc;
     return ^{
         WebView *webView = weakObj.preview;
-        NSWindow *window = webView.window;
-        @synchronized(window) {
-            if (window.isFlushWindowDisabled)
-                [window enableFlushWindow];
-        }
         [weakObj scaleWebview];
         if (weakObj.preferences.editorSyncScrolling)
         {
@@ -648,7 +643,7 @@ static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
     [super printDocumentWithSettings:printSettings
                       showPrintPanel:showPrintPanel delegate:self
                     didPrintSelector:@selector(document:didPrint:context:)
-                         contextInfo:(void *)invocation];
+                         contextInfo:(__bridge_retained void *)invocation];
 }
 
 - (BOOL)validateUserInterfaceItem:(id<NSValidatedUserInterfaceItem>)item
@@ -851,12 +846,6 @@ static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
 
 - (void)webView:(WebView *)sender didCommitLoadForFrame:(WebFrame *)frame
 {
-    NSWindow *window = sender.window;
-    @synchronized(window) {
-        if (!window.isFlushWindowDisabled)
-            [window disableFlushWindow];
-    }
-
     // If MathJax is off, the on-completion callback will be invoked directly
     // when loading is done (in -webView:didFinishLoadForFrame:).
     if (self.preferences.htmlMathJax)
@@ -1260,7 +1249,7 @@ static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
 
     NSWindow *w = self.windowForSheet;
     [panel beginSheetModalForWindow:w completionHandler:^(NSInteger result) {
-        if (result != NSFileHandlingPanelOKButton)
+        if (result != NSModalResponseOK)
             return;
         BOOL styles = controller.stylesIncluded;
         BOOL highlighting = controller.highlightingIncluded;
@@ -1284,7 +1273,7 @@ static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
         w = [windowControllers[0] window];
 
     [panel beginSheetModalForWindow:w completionHandler:^(NSInteger result) {
-        if (result != NSFileHandlingPanelOKButton)
+        if (result != NSModalResponseOK)
             return;
 
         NSDictionary *settings = @{
@@ -2004,7 +1993,7 @@ current file somewhere to enable this feature.", \
         ((MPDocument *)doc).printing = NO;
     if (context)
     {
-        NSInvocation *invocation = (__bridge NSInvocation *)context;
+        NSInvocation *invocation = (__bridge_transfer NSInvocation *)context;
         if ([invocation isKindOfClass:[NSInvocation class]])
         {
             [invocation setArgument:&doc atIndex:0];
