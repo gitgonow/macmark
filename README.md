@@ -10,20 +10,24 @@ MacMark is built on the same foundation as MacDown but updated throughout:
 
 | Area | MacDown | MacMark |
 |------|---------|---------|
+| Markdown parser | hoedown (unmaintained since 2015) | cmark-gfm (GitHub's CommonMark + GFM) |
+| Markdown spec | Pre-CommonMark, partial GFM | Full CommonMark + GFM compliance |
 | Architecture | x86_64 only | Universal (arm64 + x86_64) |
 | macOS target | 10.8+ | 11.0+ |
 | Auto-updater | Sparkle 1.x | Removed (no update server needed) |
-| Dependency manager | CocoaPods (legacy pins) | CocoaPods (updated versions) |
 | Deprecated APIs | `NSFileHandlingPanelOKButton`, `disableFlushWindow`, `NSKeyedUnarchiver` (legacy), `allowedFileTypes` | Replaced with modern equivalents |
 | ARM64 toolbar crash | Present | Fixed |
-| List interruption | Requires blank line before lists | Lists interrupt paragraphs correctly |
+| List interruption | Requires blank line before lists | Lists interrupt paragraphs per spec |
 
 ## Features
 
-- Live split-pane Markdown preview
+- Live split-pane Markdown preview powered by cmark-gfm
+- Full CommonMark and GitHub Flavored Markdown compliance
 - Syntax highlighting in code blocks (via Prism)
-- GitHub Flavored Markdown support (tables, task lists, strikethrough, fenced code)
+- GFM extensions: tables, task lists, strikethrough, autolinks
+- Custom extensions: footnotes, superscript, highlight, quote, underline
 - MathJax support for math rendering
+- SmartyPants smart punctuation
 - Multiple editor themes and preview styles
 - Customizable fonts, key bindings, and rendering options
 - Table of contents generation
@@ -46,9 +50,9 @@ pod install
 open MacDown.xcworkspace
 ```
 
-Then build and run the **MacDown** scheme in Xcode. The app will appear as **MacMark** when run.
+Then build and run the **MacMark** scheme in Xcode.
 
-> Note: The Xcode workspace and scheme retain the original MacDown name internally. The built app is named MacMark.
+> Note: The Xcode workspace retains the original MacDown name. The scheme and built app are named MacMark.
 
 ## License
 
