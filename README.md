@@ -1,6 +1,6 @@
-# MacDown
+# MacMark
 
-MacDown is an open source Markdown editor for macOS, released under the MIT License. This fork modernizes the original [MacDownApp/macdown](https://github.com/MacDownApp/macdown) to run natively on Apple Silicon (ARM64) with modern macOS.
+MacMark is an open source Markdown editor for macOS, released under the MIT License. It is a modernized fork of the original [MacDownApp/macdown](https://github.com/MacDownApp/macdown), updated to run natively on Apple Silicon (ARM64) with modern macOS.
 
 ![screenshot](assets/screenshot.png)
 
@@ -8,8 +8,9 @@ MacDown is an open source Markdown editor for macOS, released under the MIT Lice
 
 - **Native Apple Silicon support** — runs as a native ARM64 binary, no Rosetta required
 - **macOS 11+ deployment target** — drops legacy 10.8 support, uses modern APIs
-- **Sparkle 2.x** — updated auto-update framework with ARM64 support
 - **ARM64 crash fix** — toolbar button actions now work correctly on Apple Silicon
+- **List interruption** — bullet and ordered lists no longer require a blank line before them
+- **Modern APIs** — deprecated AppKit and Foundation APIs replaced throughout
 
 ## Install
 
@@ -26,8 +27,8 @@ Build from source using Xcode (see below).
 ### Steps
 
 ```bash
-git clone --recursive https://github.com/gitgonow/macdown.git
-cd macdown
+git clone --recursive https://github.com/gitgonow/macmark.git
+cd macmark
 pod install
 open MacDown.xcworkspace
 ```
@@ -45,7 +46,7 @@ Then build and run the **MacDown** scheme in Xcode.
 
 ## License
 
-MacDown is released under the MIT License. See the `LICENSE` directory for full license text, including third-party component licenses.
+MacMark is released under the MIT License. See the `LICENSE` directory for full license text, including third-party component licenses.
 
 The following editor themes and CSS files are courtesy of [Chen Luo](https://twitter.com/chenluois)'s [Mou](http://mouapp.com):
 
