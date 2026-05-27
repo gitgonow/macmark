@@ -1,101 +1,60 @@
 # MacDown
 
-[![](https://img.shields.io/github/release/MacDownApp/macdown.svg)](http://macdown.uranusjr.com/download/latest/)
-![Total downloads](https://img.shields.io/github/downloads/MacDownApp/macdown/latest/total.svg)
-[![Build Status](https://travis-ci.org/MacDownApp/macdown.svg?branch=master)](https://travis-ci.org/MacDownApp/macdown)
-
-
-MacDown is an open source Markdown editor for OS X, released under the MIT License. The author stole the idea from [Chen Luo](https://twitter.com/chenluois)’s [Mou](http://mouapp.com) so that people can make crappy clones.
-
-Visit the [project site](http://macdown.uranusjr.com/) for more information, or download [MacDown.app.zip](http://macdown.uranusjr.com/download/latest/) directly from the [latest releases](https://github.com/MacDownApp/macdown/releases/latest) page.
-
-## Install
-
-[Download](http://macdown.uranusjr.com/download/latest/), unzip, and drag the app to Applications folder. MacDown is also available through [Homebrew Cask](https://caskroom.github.io/):
-
-    brew install --cask macdown
-
-## Screenshot
+MacDown is an open source Markdown editor for macOS, released under the MIT License. This fork modernizes the original [MacDownApp/macdown](https://github.com/MacDownApp/macdown) to run natively on Apple Silicon (ARM64) with modern macOS.
 
 ![screenshot](assets/screenshot.png)
 
-## License
+## What's New in 2.0
 
-MacDown is released under the terms of MIT License. You may find the content of the license [here](http://opensource.org/licenses/MIT), or inside the `LICENSE` directory.
+- **Native Apple Silicon support** — runs as a native ARM64 binary, no Rosetta required
+- **macOS 11+ deployment target** — drops legacy 10.8 support, uses modern APIs
+- **Sparkle 2.x** — updated auto-update framework with ARM64 support
+- **ARM64 crash fix** — toolbar button actions now work correctly on Apple Silicon
 
-You may find full text of licenses about third-party components in the `LICENSE` directory, or the **About MacDown** panel in the application.
+## Install
 
-The following editor themes and CSS files are extracted from [Mou](http://mouapp.com), courtesy of Chen Luo:
+Build from source using Xcode (see below).
 
-* Mou Fresh Air
-* Mou Fresh Air+
-* Mou Night
-* Mou Night+
-* Mou Paper
-* Mou Paper+
-* Tomorrow
-* Tomorrow Blue
-* Tomorrow+
-* Writer
-* Writer+
-* Clearness
-* Clearness Dark
-* GitHub
-* GitHub2
-
-## Development
+## Building
 
 ### Requirements
 
-If you wish to build MacDown yourself, you will need the following components/tools:
+- macOS 11.0 or later
+- Xcode 12 or later
+- [CocoaPods](https://cocoapods.org) (`brew install cocoapods`)
 
-* OS X SDK (10.14 or later)
-* Git
-* [Bundler](http://bundler.io)
+### Steps
 
-> Note: Old versions of CocoaPods are not supported. Please use Bundler to execute CocoaPods, or make sure your CocoaPods is later than shown in `Gemfile.lock`.
+```bash
+git clone --recursive https://github.com/gitgonow/macdown.git
+cd macdown
+pod install
+open MacDown.xcworkspace
+```
 
-> Note: The Command Line Tools (CLT) should be unnecessary. If you failed to compile without it, please install CLT with
->
->     xcode-select --install
->
-> and report back.
+Then build and run the **MacDown** scheme in Xcode.
 
-An appropriate SDK should be bundled with Xcode 5 or later versions.
+## Features
 
-### Environment Setup
+- Live split-pane Markdown preview
+- Syntax highlighting in code blocks (via Prism)
+- Multiple editor themes
+- GitHub Flavored Markdown support
+- MathJax support
+- Customizable styles and themes
 
-After cloning the repository, run the following commands inside the repository root (directory containing this `README.md` file):
+## License
 
-    git submodule update --init
-    bundle install
-    bundle exec pod install
-    make -C Dependency/peg-markdown-highlight
+MacDown is released under the MIT License. See the `LICENSE` directory for full license text, including third-party component licenses.
 
-and open `MacDown.xcworkspace` in Xcode. The first command initialises the dependency submodule(s) used in MacDown; the second one installs dependencies managed by CocoaPods.
+The following editor themes and CSS files are courtesy of [Chen Luo](https://twitter.com/chenluois)'s [Mou](http://mouapp.com):
 
-Refer to the official guides of Git and CocoaPods if you need more instructions. If you run into build issues later on, try running the following commands to update dependencies:
+- Mou Fresh Air / Mou Night / Mou Paper (and variants)
+- Tomorrow / Tomorrow Blue / Tomorrow+
+- Writer / Writer+
+- Clearness / Clearness Dark
+- GitHub / GitHub2
 
-    git submodule update
-    bundle exec pod install
+## Original Project
 
-### Translation
-
-Please help translation on [Transifex](https://www.transifex.com/macdown/macdown/).
-
-![Transifex translation percentage](https://www.transifex.com/projects/p/macdown/resource/macdownxliff/chart/image_png/)
-
-## Discussion
-
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/MacDownApp/macdown)
-
-Join our [Gitter channel](https://gitter.im/MacDownApp/macdown) if you have any problems with MacDown. Any suggestions are welcomed, too!
-
-You can also [file an issue directly](https://github.com/MacDownApp/macdown/issues/new) on GitHub if you prefer so. But please, **search first to make sure no-one has reported the same issue already** before opening one yourself. MacDown does not update in your computer immediately when we make changes, so something you experienced might be known, or even fixed in the development version.
-
-MacDown depends a lot on other open source projects, such as [Hoedown](https://github.com/hoedown/hoedown) for Markdown-to-HTML rendering, [Prism](http://prismjs.com) for syntax highlighting (in code blocks), and [PEG Markdown Highlight](https://github.com/ali-rantakari/peg-markdown-highlight) for editor highlighting. If you find problems when using those particular features, you can also consider reporting them directly to upstream projects as well as to MacDown’s issue tracker. I will do what I can if you report it here, but sometimes it can be more beneficial to interact with them directly.
-
-## Tipping
-
-If you find MacDown suitable for your needs, please consider [giving me a tip through PayPal](http://macdown.uranusjr.com/faq/#donation). Or, if you prefer to buy me a drink *personally* instead, just [send me a tweet](https://twitter.com/uranusjr) when you visit [Taipei, Taiwan](http://en.wikipedia.org/wiki/Taipei), where I live. I look forward to meeting you!
-
+This is a fork of [MacDownApp/macdown](https://github.com/MacDownApp/macdown). Visit the original project for history and prior releases.
