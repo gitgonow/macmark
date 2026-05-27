@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "1FA6DE201941CC9E000409FB"
-               BuildableName = "MacDown.app"
-               BlueprintName = "MacDown"
+               BuildableName = "MacMark.app"
+               BlueprintName = "MacMark"
                ReferencedContainer = "container:MacDown.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -33,8 +33,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "1FA6DE441941CC9E000409FB"
-               BuildableName = "MacDownTests.xctest"
-               BlueprintName = "MacDownTests"
+               BuildableName = "MacMarkTests.xctest"
+               BlueprintName = "MacMarkTests"
                ReferencedContainer = "container:MacDown.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -43,8 +43,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "1FA6DE201941CC9E000409FB"
-            BuildableName = "MacDown.app"
-            BlueprintName = "MacDown"
+            BuildableName = "MacMark.app"
+            BlueprintName = "MacMark"
             ReferencedContainer = "container:MacDown.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -66,8 +66,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "1FA6DE201941CC9E000409FB"
-            BuildableName = "MacDown.app"
-            BlueprintName = "MacDown"
+            BuildableName = "MacMark.app"
+            BlueprintName = "MacMark"
             ReferencedContainer = "container:MacDown.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -85,8 +85,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "1FA6DE201941CC9E000409FB"
-            BuildableName = "MacDown.app"
-            BlueprintName = "MacDown"
+            BuildableName = "MacMark.app"
+            BlueprintName = "MacMark"
             ReferencedContainer = "container:MacDown.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

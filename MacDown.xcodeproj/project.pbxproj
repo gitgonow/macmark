@@ -158,7 +158,7 @@
 			containerPortal = 1FA6DE191941CC9E000409FB /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 905EF1A6196164CA00FC3CE9;
-			remoteInfo = "MacDown-cmd";
+			remoteInfo = "macmark-cmd";
 		};
 /* End PBXContainerItemProxy section */
 
@@ -1057,7 +1057,7 @@
 				905EF1B5196164DD00FC3CE9 /* PBXTargetDependency */,
 				1FE2197819534A5D00DB931F /* PBXTargetDependency */,
 			);
-			name = MacDown;
+			name = MacMark;
 			productName = MarkPad;
 			productReference = 1FA6DE211941CC9E000409FB /* MacDown.app */;
 			productType = "com.apple.product-type.application";
@@ -1076,7 +1076,7 @@
 			dependencies = (
 				1FA6DE4A1941CC9E000409FB /* PBXTargetDependency */,
 			);
-			name = MacDownTests;
+			name = MacMarkTests;
 			productName = MarkPadTests;
 			productReference = 1FA6DE451941CC9E000409FB /* MacDownTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -1095,8 +1095,8 @@
 			dependencies = (
 				1F4574791A2D87D500DFA5FF /* PBXTargetDependency */,
 			);
-			name = "macdown-cmd";
-			productName = "MacDown-cmd";
+			name = "macmark-cmd";
+			productName = "MacMark-cmd";
 			productReference = 905EF1A7196164CA00FC3CE9 /* macdown */;
 			productType = "com.apple.product-type.tool";
 		};
@@ -1928,7 +1928,7 @@
 				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "MacDown/Code/MacDown-Prefix.pch";
+				GCC_PREFIX_HEADER = "MacDown/Code/MacMark-Prefix.pch";
 				INFOPLIST_FILE = "MacDown/MacDown-Info.plist";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1939,7 +1939,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.uranusjr.${PRODUCT_NAME:rfc1034identifier:lower}-debug";
-				PRODUCT_NAME = MacDown;
+				PRODUCT_NAME = MacMark;
 				SDKROOT = macosx;
 				WRAPPER_EXTENSION = app;
 			};
@@ -1953,7 +1953,7 @@
 				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "MacDown/Code/MacDown-Prefix.pch";
+				GCC_PREFIX_HEADER = "MacDown/Code/MacMark-Prefix.pch";
 				INFOPLIST_FILE = "MacDown/MacDown-Info.plist";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1964,7 +1964,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.uranusjr.${PRODUCT_NAME:rfc1034identifier:lower}";
-				PRODUCT_NAME = MacDown;
+				PRODUCT_NAME = MacMark;
 				SDKROOT = macosx;
 				WRAPPER_EXTENSION = app;
 			};
@@ -1982,7 +1982,7 @@
 					"$(inherited)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "MacDown/Code/MacDown-Prefix.pch";
+				GCC_PREFIX_HEADER = "MacDown/Code/MacMark-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -1994,7 +1994,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.uranusjr.${PRODUCT_NAME:rfc1034identifier:lower}";
-				PRODUCT_NAME = MacDownTests;
+				PRODUCT_NAME = MacMarkTests;
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
 			};
@@ -2012,7 +2012,7 @@
 					"$(inherited)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "MacDown/Code/MacDown-Prefix.pch";
+				GCC_PREFIX_HEADER = "MacDown/Code/MacMark-Prefix.pch";
 				INFOPLIST_FILE = "MacDownTests/MacDownTests-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2020,7 +2020,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.uranusjr.${PRODUCT_NAME:rfc1034identifier:lower}";
-				PRODUCT_NAME = MacDownTests;
+				PRODUCT_NAME = MacMarkTests;
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
 			};
