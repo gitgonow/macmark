@@ -8,7 +8,6 @@
 
 #import "MPMainController.h"
 #import <MASPreferences/MASPreferencesWindowController.h>
-#import <Sparkle/Sparkle.h>
 #import "MPGlobals.h"
 #import "MPUtilities.h"
 #import "NSDocumentController+Document.h"
@@ -257,16 +256,6 @@ NS_INLINE void treat()
     [self openPendingPipedContent];
     [self openPendingFiles];
     treat();
-}
-
-
-#pragma mark - SPUUpdaterDelegate
-
-- (NSString *)feedURLStringForUpdater:(SPUUpdater *)updater
-{
-    if (self.preferences.updateIncludesPreReleases)
-        return [NSBundle mainBundle].infoDictionary[@"SUBetaFeedURL"];
-    return [NSBundle mainBundle].infoDictionary[@"SUFeedURL"];
 }
 
 

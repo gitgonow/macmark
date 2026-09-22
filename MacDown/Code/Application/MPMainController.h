@@ -7,10 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <Sparkle/Sparkle.h>
 @class MPPreferences;
 
-@interface MPMainController : NSObject <NSApplicationDelegate, SPUUpdaterDelegate>
+@interface MPMainController : NSObject <NSApplicationDelegate>
 
 @property (nonatomic, readonly) MPPreferences *preferences;
 
