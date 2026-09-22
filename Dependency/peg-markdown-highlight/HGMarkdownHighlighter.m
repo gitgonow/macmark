@@ -233,18 +233,32 @@ void styleparsing_error_callback(char *error_message, int line_number, void *con
 	else
 		[textStorage removeAttribute:NSForegroundColorAttributeName range:range];
 
+    // Collect the resized fonts first and apply them afterwards. Adding the
+    // attribute from inside the block rewrites the very attribute runs the
+    // enumeration is walking, which lets it skip ranges and leave stale
+    // heading-sized text behind once the heading markers are gone.
     NSAttributedStringEnumerationOptions options =
         NSAttributedStringEnumerationLongestEffectiveRangeNotRequired;
+    NSMutableArray<NSValue *> *resizedRanges = [NSMutableArray new];
+    NSMutableArray<NSFont *> *resizedFonts = [NSMutableArray new];
     [textStorage enumerateAttributesInRange:range
                                     options:options
                                  usingBlock:
-     ^(NSDictionary *attributes, NSRange range, BOOL *stop) {
+     ^(NSDictionary *attributes, NSRange attributeRange, BOOL *stop) {
          NSFont *font = attributes[NSFontAttributeName];
          if (!font || font.pointSize == _defaultTextSize)
              return;
          font = [[NSFontManager sharedFontManager] convertFont:font
                                                         toSize:_defaultTextSize];
-         [textStorage addAttribute:NSFontAttributeName value:font range:range];
+         [resizedRanges addObject:[NSValue valueWithRange:attributeRange]];
+         [resizedFonts addObject:font];
+     }];
+    
+    [resizedRanges enumerateObjectsUsingBlock:
+     ^(NSValue *rangeValue, NSUInteger index, BOOL *stop) {
+         [textStorage addAttribute:NSFontAttributeName
+                             value:resizedFonts[index]
+                             range:rangeValue.rangeValue];
      }];
 }
 
@@ -358,6 +372,11 @@ void styleparsing_error_callback(char *error_message, int line_number, void *con
 		}
 	}
 	[[self.targetTextView textStorage] endEditing];
+	
+	// Heading styles change point sizes, so the lines below an edit reflow to
+	// new heights. The vacated pixels are not always invalidated on their own
+	// and survive as duplicated text, so repaint what is on screen.
+	[self.targetTextView setNeedsDisplay:YES];
 }
 
 - (void) applyVisibleRangeHighlighting
