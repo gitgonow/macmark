@@ -47,9 +47,12 @@ static CGFloat itemWidth = 37;
 
 - (void)setupToolbarItems
 {
-    // Set up layout drop down alternatives. title will be set in validateUserInterfaceItem:
-    NSMenuItem *toggleEditorMenuItem = [[NSMenuItem alloc] initWithTitle:@"" action:@selector(toggleEditorPane:) keyEquivalent:@"e"];
-    NSMenuItem *togglePreviewMenuItem = [[NSMenuItem alloc] initWithTitle:@"" action:@selector(togglePreviewPane:) keyEquivalent:@"p"];
+    // Set up layout drop down alternatives. Titles are refreshed in
+    // validateUserInterfaceItem: as panes are shown and hidden; these initial
+    // values match the both-panes-visible state the document starts in, so the
+    // items never render blank before the first validation pass.
+    NSMenuItem *toggleEditorMenuItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Hide Editor Pane", @"Toggle editor pane menu item") action:@selector(toggleEditorPane:) keyEquivalent:@"e"];
+    NSMenuItem *togglePreviewMenuItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Hide Preview Pane", @"Toggle preview pane menu item") action:@selector(togglePreviewPane:) keyEquivalent:@"p"];
     
     // Set up all available toolbar items
     self->toolbarItems = @[
@@ -199,6 +202,32 @@ static CGFloat itemWidth = 37;
 #pragma mark - Toolbar item factory methods
 
 /**
+ * When the window is too narrow for an item, the toolbar clips it and offers it
+ * from a "clipped items" menu built from the item's menuFormRepresentation.
+ * AppKit's default for a view-backed item just clicks the hidden view, which
+ * only behaves sensibly for a plain button. Items that stand for several
+ * commands need to say so explicitly, as a menu item carrying a submenu, which
+ * AppKit renders as a working pull-down.
+ *
+ * Submenu items are left targetless so their actions travel the responder chain
+ * to the document, the same dispatch the toolbar's other items already rely on.
+ */
+- (void)setClippedMenuFormRepresentationForItem:(NSToolbarItem *)toolbarItem
+                                          label:(NSString *)label
+                                   submenuItems:(NSArray<NSMenuItem *> *)submenuItems {
+    NSMenu *submenu = [[NSMenu alloc] initWithTitle:label];
+    for (NSMenuItem *submenuItem in submenuItems) {
+        [submenu addItem:submenuItem];
+    }
+    
+    NSMenuItem *menuForm = [[NSMenuItem alloc] initWithTitle:label
+                                                      action:NULL
+                                               keyEquivalent:@""];
+    menuForm.submenu = submenu;
+    toolbarItem.menuFormRepresentation = menuForm;
+}
+
+/**
  * Factory method for creating and configuring a NSToolbarItemGroup object.
  */
 - (NSToolbarItemGroup *)toolbarItemGroupWithIdentifier:(NSString *)itemIdentifier separated:(BOOL)separated label:(NSString *)label items:(NSArray <NSToolbarItem *>*)items {
@@ -233,6 +262,19 @@ static CGFloat itemWidth = 37;
     
     itemGroup.maxSize = NSMakeSize(itemGroupWidth, 25);
     itemGroup.view = segmentedControl;
+    
+    // The default clipped representation clicks the segmented control, which
+    // reports segment 0 whatever the user meant, so only the first subitem is
+    // ever reachable once the group is clipped. List the subitems explicitly.
+    NSMutableArray<NSMenuItem *> *clippedItems = [NSMutableArray new];
+    for (NSToolbarItem *subItem in items) {
+        [clippedItems addObject:[[NSMenuItem alloc] initWithTitle:subItem.label
+                                                           action:subItem.action
+                                                    keyEquivalent:@""]];
+    }
+    [self setClippedMenuFormRepresentationForItem:itemGroup
+                                            label:label
+                                     submenuItems:clippedItems];
     
     [self->toolbarItemIdentifierObjectDictionary setObject:itemGroup forKey:itemIdentifier];
     
@@ -295,6 +337,19 @@ static CGFloat itemWidth = 37;
     }
     
     toolbarItem.view = popupButton;
+    
+    // The default clipped representation just clicks the popup button, which has
+    // nowhere to show its menu from inside the clipped items menu, so it does
+    // nothing at all. Offer the alternatives as a real submenu instead.
+    NSMutableArray<NSMenuItem *> *clippedItems = [NSMutableArray new];
+    for (NSMenuItem *menuItem in menuItems) {
+        [clippedItems addObject:[[NSMenuItem alloc] initWithTitle:menuItem.title
+                                                           action:menuItem.action
+                                                    keyEquivalent:@""]];
+    }
+    [self setClippedMenuFormRepresentationForItem:toolbarItem
+                                            label:label
+                                     submenuItems:clippedItems];
     
     [self->toolbarItemIdentifierObjectDictionary setObject:toolbarItem forKey:itemIdentifier];
     
