@@ -396,6 +396,25 @@
                                     <action selector="toggleEditorPane:" target="-1" id="BGN-6z-VZN"/>
                                 </connections>
                             </menuItem>
+                            <menuItem isSeparatorItem="YES" id="zMS-ep-004"/>
+                            <menuItem title="Zoom In" keyEquivalent="=" id="zMI-in-001">
+                                <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
+                                <connections>
+                                    <action selector="zoomIn:" target="-1" id="zAI-in-005"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Zoom Out" keyEquivalent="-" id="zMO-ut-002">
+                                <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
+                                <connections>
+                                    <action selector="zoomOut:" target="-1" id="zAO-ut-006"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Actual Size" keyEquivalent="0" id="zMA-sz-003">
+                                <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
+                                <connections>
+                                    <action selector="resetZoom:" target="-1" id="zAR-st-007"/>
+                                </connections>
+                            </menuItem>
                             <menuItem isSeparatorItem="YES" id="Cux-kV-g5Z"/>
                             <menuItem title="Show Toolbar" keyEquivalent="t" id="fKI-yk-0lv">
                                 <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>

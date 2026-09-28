@@ -239,22 +239,99 @@ typedef NS_ENUM(NSUInteger, MPWordCountType) {
 @property (strong) NSArray<NSNumber *> *webViewHeaderLocations;
 @property (strong) NSArray<NSNumber *> *editorHeaderLocations;
 @property (nonatomic) BOOL inLiveScroll;
+@property (nonatomic) BOOL syncingScroll;
+@property (nonatomic) BOOL previewLoading;
+@property (weak) NSClipView *observedPreviewContentView;
+@property (nonatomic) CGFloat zoomLevel;
+@property (readonly) NSScrollView *previewScrollView;
 
 // Store file content in initializer until nib is loaded.
 @property (copy) NSString *loadedString;
 
 - (void)scaleWebview;
 - (void)syncScrollers;
+- (void)syncEditorToPreview;
 -(void) updateHeaderLocations;
+- (void)observePreviewScrollView;
 
 @end
+
+static CGFloat const MPZoomLevels[] = {
+    0.5, 0.67, 0.75, 0.8, 0.9, 1.0, 1.1, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0
+};
+static NSUInteger const MPZoomLevelCount =
+    sizeof(MPZoomLevels) / sizeof(MPZoomLevels[0]);
+
+NS_INLINE void MPScrollClipView(NSClipView *clipView, CGFloat y)
+{
+    if (!clipView)
+        return;
+    [clipView scrollToPoint:NSMakePoint(NSMinX(clipView.bounds), y)];
+    [clipView.enclosingScrollView reflectScrolledClipView:clipView];
+}
+
+// Maps a scroll offset in one pane to the matching offset in the other.
+// Anchors are the Y positions of corresponding reference nodes (headers and
+// standalone images) in each pane, paired by index. The panes are aligned
+// around the middle of the visible area, tapering off towards the top and
+// bottom so both ends of the documents always line up exactly.
+static CGFloat MPMapScrollOffset(
+    CGFloat offset, NSScrollView *from, NSArray<NSNumber *> *fromAnchors,
+    NSScrollView *to, NSArray<NSNumber *> *toAnchors)
+{
+    CGFloat fromVisible = NSHeight(from.contentView.bounds);
+    CGFloat toVisible = NSHeight(to.contentView.bounds);
+    CGFloat fromMax = NSHeight(from.documentView.bounds) - fromVisible;
+    CGFloat toMax = NSHeight(to.documentView.bounds) - toVisible;
+    if (fromMax <= 0.0 || toMax <= 0.0 || fromVisible <= 0.0)
+        return 0.0;
+    offset = MAX(0.0, MIN(fromMax, offset));
+
+    CGFloat topTaper = MIN(1.0, offset / fromVisible);
+    CGFloat bottomTaper = MIN(1.0, (fromMax - offset) / fromVisible);
+    CGFloat focus = topTaper * bottomTaper / 2.0;
+    CGFloat fromFocus = focus * fromVisible;
+    CGFloat toFocus = focus * toVisible;
+    CGFloat position = offset + fromFocus;
+
+    CGFloat fromLow = fromFocus;
+    CGFloat toLow = toFocus;
+    CGFloat fromHigh = fromMax + fromFocus;
+    CGFloat toHigh = toMax + toFocus;
+    NSUInteger count = MIN(fromAnchors.count, toAnchors.count);
+    for (NSUInteger i = 0; i < count; i++)
+    {
+        CGFloat f = fromAnchors[i].doubleValue;
+        CGFloat t = toAnchors[i].doubleValue;
+        // Ignore anchors outside the current range, or out of order.
+        if (f <= fromLow || t <= toLow || f >= fromHigh || t >= toHigh)
+            continue;
+        if (f <= position)
+        {
+            fromLow = f;
+            toLow = t;
+        }
+        else
+        {
+            fromHigh = f;
+            toHigh = t;
+            break;
+        }
+    }
+
+    CGFloat ratio = 0.0;
+    if (fromHigh > fromLow)
+        ratio = MAX(0.0, MIN(1.0, (position - fromLow) / (fromHigh - fromLow)));
+    CGFloat result = toLow + (toHigh - toLow) * ratio - toFocus;
+    return MAX(0.0, MIN(toMax, result));
+}
 
 static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
 {
     __weak MPDocument *weakObj = doc;
     return ^{
-        WebView *webView = weakObj.preview;
         [weakObj scaleWebview];
+        [weakObj observePreviewScrollView];
         if (weakObj.preferences.editorSyncScrolling)
         {
             [weakObj updateHeaderLocations];
@@ -262,11 +339,10 @@ static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
         }
         else
         {
-            NSClipView *contentView = webView.enclosingScrollView.contentView;
-            NSRect bounds = contentView.bounds;
-            bounds.origin.y = weakObj.lastPreviewScrollTop;
-            contentView.bounds = bounds;
+            MPScrollClipView(weakObj.previewScrollView.contentView,
+                             weakObj.lastPreviewScrollTop);
         }
+        weakObj.previewLoading = NO;
     };
 }
 
@@ -278,6 +354,12 @@ static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
 - (MPPreferences *)preferences
 {
     return [MPPreferences sharedInstance];
+}
+
+- (NSScrollView *)previewScrollView
+{
+    // WebView is not itself inside a scroll view; its frame view owns one.
+    return self.preview.mainFrame.frameView.documentView.enclosingScrollView;
 }
 
 - (NSString *)markdown
@@ -366,6 +448,7 @@ static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
     self.isPreviewReady = NO;
     self.shouldHandleBoundsChange = YES;
     self.previousSplitRatio = -1.0;
+    self.zoomLevel = 1.0;
     
     return self;
 }
@@ -441,12 +524,6 @@ static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
     [center addObserver:self selector:@selector(didEndLiveScroll:)
                    name:NSScrollViewDidEndLiveScrollNotification
                  object:self.editor.enclosingScrollView];
-    if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber10_9)
-    {
-        [center addObserver:self selector:@selector(previewDidLiveScroll:)
-                       name:NSScrollViewDidEndLiveScrollNotification
-                     object:self.preview.enclosingScrollView];
-    }
 
     self.needsToUnregister = YES;
 
@@ -703,6 +780,18 @@ static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
                               @"Toggle preview pane menu item");
 
     }
+    else if (action == @selector(zoomIn:))
+    {
+        return result && self.zoomLevel < MPZoomLevels[MPZoomLevelCount - 1];
+    }
+    else if (action == @selector(zoomOut:))
+    {
+        return result && self.zoomLevel > MPZoomLevels[0];
+    }
+    else if (action == @selector(resetZoom:))
+    {
+        return result && self.zoomLevel != 1.0;
+    }
     else if (action == @selector(toggleEditorPane:))
     {
         NSMenuItem *it = (NSMenuItem*)item;
@@ -921,6 +1010,7 @@ static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
     [self webView:sender didFinishLoadForFrame:frame];
     
     self.alreadyRenderingInWeb = NO;
+    self.previewLoading = NO;
 
     if (self.renderToWebPending)
         [self.renderer parseAndRenderNow];
@@ -1075,6 +1165,7 @@ static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
         return;
     
     self.alreadyRenderingInWeb = YES;
+    self.previewLoading = YES;
 
     // Delayed copying for -copyHtml.
     if (self.copying)
@@ -1186,7 +1277,7 @@ static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
 
 - (void)editorBoundsDidChange:(NSNotification *)notification
 {
-    if (!self.shouldHandleBoundsChange)
+    if (!self.shouldHandleBoundsChange || self.syncingScroll)
         return;
 
     if (self.preferences.editorSyncScrolling)
@@ -1203,6 +1294,39 @@ static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
     }
 }
 
+- (void)previewBoundsDidChange:(NSNotification *)notification
+{
+    if (self.syncingScroll || self.previewLoading)
+        return;
+
+    NSClipView *contentView = notification.object;
+    self.lastPreviewScrollTop = NSMinY(contentView.bounds);
+
+    if (!self.preferences.editorSyncScrolling || !self.editorVisible
+            || !self.previewScrollIsUserDriven)
+        return;
+
+    @synchronized(self) {
+        if (!_inLiveScroll)
+            [self updateHeaderLocations];
+        [self syncEditorToPreview];
+    }
+}
+
+- (BOOL)previewScrollIsUserDriven
+{
+    // Only follow the preview when the user is scrolling it (mouse over it, or
+    // keyboard focus inside it), not when WebKit adjusts it on its own.
+    NSWindow *window = self.preview.window;
+    NSPoint location = [self.preview convertPoint:
+                        window.mouseLocationOutsideOfEventStream fromView:nil];
+    if ([self.preview mouse:location inRect:self.preview.bounds])
+        return YES;
+    NSResponder *responder = window.firstResponder;
+    return [responder isKindOfClass:[NSView class]]
+        && [(NSView *)responder isDescendantOf:self.preview];
+}
+
 - (void)didRequestEditorReload:(NSNotification *)notification
 {
     NSString *key =
@@ -1215,10 +1339,32 @@ static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
     [self render:nil];
 }
 
-- (void)previewDidLiveScroll:(NSNotification *)notification
+- (void)observePreviewScrollView
 {
-    NSClipView *contentView = self.preview.enclosingScrollView.contentView;
-    self.lastPreviewScrollTop = contentView.bounds.origin.y;
+    NSScrollView *scrollView = self.previewScrollView;
+    NSClipView *contentView = scrollView.contentView;
+    if (!contentView || contentView == self.observedPreviewContentView)
+        return;
+
+    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+    NSClipView *previous = self.observedPreviewContentView;
+    if (previous)
+    {
+        [center removeObserver:self name:nil object:previous];
+        [center removeObserver:self name:nil
+                        object:previous.enclosingScrollView];
+    }
+    self.observedPreviewContentView = contentView;
+
+    contentView.postsBoundsChangedNotifications = YES;
+    [center addObserver:self selector:@selector(previewBoundsDidChange:)
+                   name:NSViewBoundsDidChangeNotification object:contentView];
+    [center addObserver:self selector:@selector(willStartLiveScroll:)
+                   name:NSScrollViewWillStartLiveScrollNotification
+                 object:scrollView];
+    [center addObserver:self selector:@selector(didEndLiveScroll:)
+                   name:NSScrollViewDidEndLiveScrollNotification
+                 object:scrollView];
 }
 
 
@@ -1513,6 +1659,35 @@ static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
     [self toggleSplitterCollapsingEditorPane:YES];
 }
 
+- (IBAction)zoomIn:(id)sender
+{
+    for (NSUInteger i = 0; i < MPZoomLevelCount; i++)
+    {
+        if (MPZoomLevels[i] > self.zoomLevel + 0.001)
+        {
+            [self setZoomLevelAndRefresh:MPZoomLevels[i]];
+            return;
+        }
+    }
+}
+
+- (IBAction)zoomOut:(id)sender
+{
+    for (NSUInteger i = MPZoomLevelCount; i > 0; i--)
+    {
+        if (MPZoomLevels[i - 1] < self.zoomLevel - 0.001)
+        {
+            [self setZoomLevelAndRefresh:MPZoomLevels[i - 1]];
+            return;
+        }
+    }
+}
+
+- (IBAction)resetZoom:(id)sender
+{
+    [self setZoomLevelAndRefresh:1.0];
+}
+
 - (IBAction)render:(id)sender
 {
     [self.renderer parseAndRenderLater];
@@ -1520,6 +1695,51 @@ static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
 
 
 #pragma mark - Private
+
+- (void)setZoomLevelAndRefresh:(CGFloat)zoomLevel
+{
+    if (zoomLevel == self.zoomLevel)
+        return;
+
+    // Keep the first visible character at the top of the editor while the
+    // text reflows at the new size.
+    NSLayoutManager *layoutManager = self.editor.layoutManager;
+    NSTextContainer *textContainer = self.editor.textContainer;
+    NSClipView *contentView = self.editor.enclosingScrollView.contentView;
+    NSRect visibleRect = contentView.documentVisibleRect;
+    visibleRect.origin.y -= self.editor.textContainerOrigin.y;
+    NSRange glyphs = [layoutManager glyphRangeForBoundingRect:visibleRect
+                                              inTextContainer:textContainer];
+    NSUInteger topCharacter =
+        [layoutManager characterIndexForGlyphAtIndex:glyphs.location];
+    BOOL atTop = NSMinY(contentView.bounds) <= 0.0;
+
+    self.zoomLevel = zoomLevel;
+    self.shouldHandleBoundsChange = NO;
+    [self setupEditor:@"editorBaseFontInfo"];   // Also rescales the preview.
+
+    CGFloat y = 0.0;
+    if (!atTop && topCharacter < self.editor.string.length)
+    {
+        NSRange range = [layoutManager
+            glyphRangeForCharacterRange:NSMakeRange(topCharacter, 1)
+                   actualCharacterRange:NULL];
+        NSRect rect = [layoutManager boundingRectForGlyphRange:range
+                                               inTextContainer:textContainer];
+        y = NSMinY(rect) + self.editor.textContainerOrigin.y;
+    }
+    MPScrollClipView(contentView, y);
+    self.shouldHandleBoundsChange = YES;
+
+    // The preview lays out again asynchronously after zooming.
+    if (self.preferences.editorSyncScrolling)
+    {
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            [self updateHeaderLocations];
+            [self syncScrollers];
+        }];
+    }
+}
 
 - (void)toggleSplitterCollapsingEditorPane:(BOOL)forEditorPane
 {
@@ -1579,6 +1799,12 @@ static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
         style.lineSpacing = self.preferences.editorLineSpacing;
         self.editor.defaultParagraphStyle = [style copy];
         NSFont *font = [self.preferences.editorBaseFont copy];
+        if (font && self.zoomLevel != 1.0)
+        {
+            NSFontManager *manager = [NSFontManager sharedFontManager];
+            font = [manager convertFont:font
+                                 toSize:font.pointSize * self.zoomLevel];
+        }
         if (font)
             self.editor.font = font;
         self.editor.textColor = nil;
@@ -1720,86 +1946,138 @@ static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
 
 - (void)scaleWebview
 {
-    if (!self.preferences.previewZoomRelativeToBaseFontSize)
-        return;
+    CGFloat scale = self.zoomLevel;
+    if (self.preferences.previewZoomRelativeToBaseFontSize)
+    {
+        static const CGFloat defaultSize = 14.0;
+        CGFloat fontSize = self.preferences.editorBaseFontSize;
+        if (fontSize > 0.0)
+            scale *= fontSize / defaultSize;
+    }
 
-    CGFloat fontSize = self.preferences.editorBaseFontSize;
-    if (fontSize <= 0.0)
-        return;
-
-    static const CGFloat defaultSize = 14.0;
-    CGFloat scale = fontSize / defaultSize;
-    
-#if 0
-    // Sadly, this doesn’t work correctly.
-    // It looks fine, but selections are offset relative to the mouse cursor.
-    NSScrollView *previewScrollView =
-    self.preview.mainFrame.frameView.documentView.enclosingScrollView;
-    NSClipView *previewContentView = previewScrollView.contentView;
-    [previewContentView scaleUnitSquareToSize:NSMakeSize(scale, scale)];
-    [previewContentView setNeedsDisplay:YES];
-#else
     // Warning: this is private webkit API and NOT App Store-safe!
     if ([self.preview respondsToSelector:@selector(setPageSizeMultiplier:)])
         [self.preview setPageSizeMultiplier:scale];
-#endif
 }
 
 -(void) updateHeaderLocations
 {
-    CGFloat offset = NSMinY(self.preview.enclosingScrollView.contentView.bounds);
+    // First, find the top-level headers and standalone images in the preview.
+    // The last value returned is the document height, used to convert the
+    // CSS pixel positions into (possibly zoomed) view coordinates.
+    static NSString * const script =
+        @"(function () {"
+        "  var nodes = document.querySelectorAll('body > h1, body > h2, "
+        "body > h3, body > h4, body > h5, body > h6, "
+        "body > p > img:only-child');"
+        "  var result = [];"
+        "  for (var i = 0; i < nodes.length; i++) {"
+        "    var node = nodes[i];"
+        "    if (node.tagName.charAt(0) !== 'H'"
+        "        && node.parentNode.textContent.trim() !== '')"
+        "      continue;"
+        "    result.push(node.getBoundingClientRect().top + window.pageYOffset);"
+        "  }"
+        "  result.push(document.documentElement.scrollHeight);"
+        "  return result;"
+        "})()";
+    NSArray *values = [[self.preview.mainFrame.javaScriptContext
+                        evaluateScript:script] toArray];
     NSMutableArray<NSNumber *> *locations = [NSMutableArray array];
-
-    _webViewHeaderLocations = [[self.preview.mainFrame.javaScriptContext evaluateScript:@"var arr = Array.prototype.slice.call(document.querySelectorAll(\"h1, h2, h3, h4, h5, h6, img:only-child\")); arr.map(function(n){ return n.getBoundingClientRect().top })"] toArray];
-    
-    // add offset to all numbers
-    for (NSNumber *location in _webViewHeaderLocations)
-    {
-        [locations addObject:@([location floatValue] + offset)];
-    }
-    
+    CGFloat previewHeight =
+        NSHeight(self.previewScrollView.documentView.bounds);
+    CGFloat cssHeight = [values.lastObject doubleValue];
+    CGFloat factor = (cssHeight > 0.0 && previewHeight > 0.0) ?
+        previewHeight / cssHeight : 1.0;
+    for (NSUInteger i = 0; i + 1 < values.count; i++)
+        [locations addObject:@([values[i] doubleValue] * factor)];
     _webViewHeaderLocations = [locations copy];
-    
 
     // Next, cache the locations of all of the reference nodes in the editor view.
-    NSInteger characterCount = 0;
     NSLayoutManager *layoutManager = [self.editor layoutManager];
-    NSArray<NSString *> *documentLines = [self.editor.string componentsSeparatedByString:@"\n"];
+    NSTextContainer *textContainer = self.editor.textContainer;
+    CGFloat originY = self.editor.textContainerOrigin.y;
+    NSString *text = self.editor.string;
+    NSArray<NSString *> *documentLines = [text componentsSeparatedByString:@"\n"];
     [locations removeAllObjects];
+
+    // Front matter is rendered as a table, not headers; skip it.
+    NSUInteger frontMatterEnd = 0;
+    if (self.preferences.htmlDetectFrontMatter)
+        [text frontMatter:&frontMatterEnd];
 
     // These are the patterns for markdown headers and images respectively. we're only going to
     // handle images that are not inline with other text/images
-    NSRegularExpression *dashRegex = [NSRegularExpression regularExpressionWithPattern:@"^([-]+)$" options:0 error:nil];
-    NSRegularExpression *headerRegex = [NSRegularExpression regularExpressionWithPattern:@"^(#+)\\s" options:0 error:nil];
-    NSRegularExpression *imgRegex = [NSRegularExpression regularExpressionWithPattern:@"^!\\[[^\\]]*\\]\\([^)]*\\)$" options:0 error:nil];
-    BOOL previousLineHadContent = NO;
-    
-    CGFloat editorContentHeight = ceilf(NSHeight(self.editor.enclosingScrollView.documentView.bounds));
-    CGFloat editorVisibleHeight = ceilf(NSHeight(self.editor.enclosingScrollView.contentView.bounds));
+    static NSRegularExpression *setextRegex = nil;
+    static NSRegularExpression *headerRegex = nil;
+    static NSRegularExpression *imgRegex = nil;
+    static NSRegularExpression *fenceRegex = nil;
+    static dispatch_once_t token;
+    dispatch_once(&token, ^{
+        setextRegex = [NSRegularExpression regularExpressionWithPattern:@"^ {0,3}(-+|=+)\\s*$" options:0 error:nil];
+        headerRegex = [NSRegularExpression regularExpressionWithPattern:@"^ {0,3}#{1,6}(\\s|$)" options:0 error:nil];
+        imgRegex = [NSRegularExpression regularExpressionWithPattern:@"^!\\[[^\\]]*\\]\\([^)]*\\)\\s*$" options:0 error:nil];
+        fenceRegex = [NSRegularExpression regularExpressionWithPattern:@"^ {0,3}(`{3,}|~{3,})" options:0 error:nil];
+    });
+    BOOL previousLineWasParagraph = NO;
+    NSCharacterSet *whitespace = [NSCharacterSet whitespaceCharacterSet];
+    NSRange previousLineRange = NSMakeRange(0, 0);
+    NSString *openFence = nil;
+    NSUInteger characterCount = 0;
 
     // We start by splitting our document into lines, and then searching
     // line by line for headers or images.
-    for (NSInteger lineNumber = 0; lineNumber < [documentLines count]; lineNumber++)
+    for (NSString *line in documentLines)
     {
-        NSString *line = documentLines[lineNumber];
-        
-        if ((previousLineHadContent && [dashRegex numberOfMatchesInString:line options:0 range:NSMakeRange(0, [line length])]) ||
-            [imgRegex numberOfMatchesInString:line options:0 range:NSMakeRange(0, [line length])] ||
-            [headerRegex numberOfMatchesInString:line options:0 range:NSMakeRange(0, [line length])])
-        {
-            // Calculate where this header/image appears vertically in the editor
-            NSRange glyphRange = [layoutManager glyphRangeForCharacterRange:NSMakeRange(characterCount, [line length]) actualCharacterRange:nil];
-            NSRect topRect = [layoutManager boundingRectForGlyphRange:glyphRange inTextContainer:[self.editor textContainer]];
-            CGFloat headerY = NSMidY(topRect);
+        NSRange lineRange = NSMakeRange(0, line.length);
+        NSUInteger lineStart = characterCount;
+        characterCount += line.length + 1;
+        if (lineStart < frontMatterEnd)
+            continue;
 
-            if(headerY <= editorContentHeight - editorVisibleHeight){
-                [locations addObject:@(headerY)];
-            }
+        // Skip the contents of fenced code blocks.
+        NSTextCheckingResult *fence =
+            [fenceRegex firstMatchInString:line options:0 range:lineRange];
+        if (openFence)
+        {
+            NSString *marker = fence ?
+                [line substringWithRange:[fence rangeAtIndex:1]] : nil;
+            if (marker && [marker characterAtIndex:0] == [openFence characterAtIndex:0]
+                    && marker.length >= openFence.length
+                    && ![[line substringFromIndex:NSMaxRange(fence.range)]
+                            stringByTrimmingCharactersInSet:whitespace].length)
+                openFence = nil;
+            continue;
         }
-        
-        previousLineHadContent = [line length] && ![dashRegex numberOfMatchesInString:line options:0 range:NSMakeRange(0, [line length])];
-        
-        characterCount += [line length] + 1;
+        if (fence)
+        {
+            openFence = [line substringWithRange:[fence rangeAtIndex:1]];
+            previousLineWasParagraph = NO;
+            continue;
+        }
+
+        BOOL isHeader =
+            [headerRegex numberOfMatchesInString:line options:0 range:lineRange];
+        BOOL isSetext = previousLineWasParagraph &&
+            [setextRegex numberOfMatchesInString:line options:0 range:lineRange];
+        BOOL isImage =
+            [imgRegex numberOfMatchesInString:line options:0 range:lineRange];
+
+        if (isHeader || isSetext || isImage)
+        {
+            // Calculate where this header/image appears vertically in the
+            // editor. Setext headers start on the line above the underline.
+            NSRange characterRange = isSetext ?
+                previousLineRange : NSMakeRange(lineStart, line.length);
+            NSRange glyphRange = [layoutManager glyphRangeForCharacterRange:characterRange actualCharacterRange:nil];
+            NSRect rect = [layoutManager boundingRectForGlyphRange:glyphRange inTextContainer:textContainer];
+            [locations addObject:@(NSMinY(rect) + originY)];
+        }
+
+        previousLineWasParagraph =
+            [line stringByTrimmingCharactersInSet:whitespace].length
+            && !isHeader && !isSetext && !isImage;
+        previousLineRange = NSMakeRange(lineStart, line.length);
     }
 
     _editorHeaderLocations = [locations copy];
@@ -1807,80 +2085,38 @@ static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
 
 - (void)syncScrollers
 {
-    CGFloat editorContentHeight = ceilf(NSHeight(self.editor.enclosingScrollView.documentView.bounds));
-    CGFloat editorVisibleHeight = ceilf(NSHeight(self.editor.enclosingScrollView.contentView.bounds));
-    CGFloat previewContentHeight = ceilf(NSHeight(self.preview.enclosingScrollView.documentView.bounds));
-    CGFloat previewVisibleHeight = ceilf(NSHeight(self.preview.enclosingScrollView.contentView.bounds));
-    NSInteger relativeHeaderIndex = -1; // -1 is start of document, before any other header
-    CGFloat currY = NSMinY(self.editor.enclosingScrollView.contentView.bounds);
-    CGFloat minY = 0;
-    CGFloat maxY = 0;
-    
-    // align the documents at the middle of the screen, except at top/bottom of document
-    CGFloat topTaper = MAX(0, MIN(1.0, currY / editorVisibleHeight));
-    CGFloat bottomTaper = 1.0 - MAX(0, MIN(1.0, (currY - editorContentHeight + 2 * editorVisibleHeight) / editorVisibleHeight));
-    CGFloat adjustmentForScroll = topTaper * bottomTaper * editorVisibleHeight / 2;
+    NSScrollView *editorScrollView = self.editor.enclosingScrollView;
+    NSScrollView *previewScrollView = self.previewScrollView;
+    if (!previewScrollView)
+        return;
 
-    // We start by splitting our document into lines, and then searching
-    // line by line for headers or images.
-    for (NSNumber *headerYNum in _editorHeaderLocations) {
-        CGFloat headerY = [headerYNum floatValue];
-        headerY -= adjustmentForScroll;
-        
-        if (headerY < currY)
-        {
-            // The header is before our current scroll position. the closest
-            // of these will be our first reference node
-            relativeHeaderIndex += 1;
-            minY = headerY;
-        } else if (maxY == 0 && headerY < editorContentHeight - editorVisibleHeight)
-        {
-            // Skip any headers that are within the last screen of the editor.
-            // we'll interpolate to the end of the document in that case.
-            maxY = headerY;
-        }
-    }
-    
-    // Usually, we'll be scrolling between two reference nodes, but toward the end
-    // of the document we'll ignore nodes and reference the end of the document instead
-    BOOL interpolateToEndOfDocument = NO;
-    
-    if (maxY == 0)
-    {
-        // We only have a reference node before our current position,
-        // but not after, so we'll use the end of the document.
-        maxY = editorContentHeight - editorVisibleHeight + adjustmentForScroll;
-        interpolateToEndOfDocument = YES;
-    }
+    CGFloat y = MPMapScrollOffset(
+        NSMinY(editorScrollView.contentView.bounds),
+        editorScrollView, _editorHeaderLocations,
+        previewScrollView, _webViewHeaderLocations);
 
-    // We are currently at currY offset, between minY and maxY, which represent
-    // headers indexed by relativeHeaderIndex and relativeHeaderIndex+1.
-    currY = MAX(0, currY - minY);
-    maxY -= minY;
-    minY -= minY;
-    CGFloat percentScrolledBetweenHeaders = MAX(0, MIN(1.0, currY / maxY));
-    
-    // Now that we know where the editor position is relative to two reference nodes,
-    // we need to find the positions of those nodes in the HTML preview
-    CGFloat topHeaderY = 0;
-    CGFloat bottomHeaderY = previewContentHeight - previewVisibleHeight;
-    
-    // Find the Y positions in the preview window that we're scrolling between
-    if ([_webViewHeaderLocations count] > relativeHeaderIndex)
-    {
-        topHeaderY = floorf([_webViewHeaderLocations[relativeHeaderIndex] doubleValue]) - adjustmentForScroll;
-    }
-    
-    if (!interpolateToEndOfDocument && [_webViewHeaderLocations count] > relativeHeaderIndex + 1)
-    {
-        bottomHeaderY = ceilf([_webViewHeaderLocations[relativeHeaderIndex + 1] doubleValue]) - adjustmentForScroll;
-    }
-    
-    // Now we scroll percentScrolledBetweenHeaders percent between those two positions in the webview
-    CGFloat previewY = topHeaderY + (bottomHeaderY - topHeaderY) * percentScrolledBetweenHeaders;
-    NSRect contentBounds = self.preview.enclosingScrollView.contentView.bounds;
-    contentBounds.origin.y = previewY;
-    self.preview.enclosingScrollView.contentView.bounds = contentBounds;
+    BOOL wasSyncing = self.syncingScroll;
+    self.syncingScroll = YES;
+    MPScrollClipView(previewScrollView.contentView, y);
+    self.syncingScroll = wasSyncing;
+}
+
+- (void)syncEditorToPreview
+{
+    NSScrollView *editorScrollView = self.editor.enclosingScrollView;
+    NSScrollView *previewScrollView = self.previewScrollView;
+    if (!previewScrollView)
+        return;
+
+    CGFloat y = MPMapScrollOffset(
+        NSMinY(previewScrollView.contentView.bounds),
+        previewScrollView, _webViewHeaderLocations,
+        editorScrollView, _editorHeaderLocations);
+
+    BOOL wasSyncing = self.syncingScroll;
+    self.syncingScroll = YES;
+    MPScrollClipView(editorScrollView.contentView, y);
+    self.syncingScroll = wasSyncing;
 }
 
 - (void)setSplitViewDividerLocation:(CGFloat)ratio
