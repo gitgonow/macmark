@@ -19,4 +19,8 @@
 @property (nonatomic, readwrite) NSString *markdown;
 @property (nonatomic, readonly) NSString *html;
 
+// Files opened before this is called (i.e. during a cold start) show only the
+// preview pane.
++ (void)applicationDidFinishOpeningLaunchFiles;
+
 @end

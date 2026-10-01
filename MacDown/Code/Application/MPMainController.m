@@ -120,6 +120,11 @@ NS_INLINE void treat()
         setEventHandler:self
             andSelector:@selector(openUrlSchemeAppleEvent:withReplyEvent:)
           forEventClass:kInternetEventClass andEventID:kAEGetURL];
+
+    // Files from Finder are opened before launch finishes. Files passed via
+    // the command line are opened later, when the app becomes active.
+    if (!self.preferences.filesToOpen.count)
+        [self finishOpeningLaunchFiles];
 }
 
 // Open a file from a browser with url of the form :
@@ -256,6 +261,7 @@ NS_INLINE void treat()
     [self openPendingPipedContent];
     [self openPendingFiles];
     treat();
+    [self finishOpeningLaunchFiles];
 }
 
 
@@ -296,6 +302,14 @@ NS_INLINE void treat()
                 [manager copyItemAtURL:fileSource toURL:fileTarget error:NULL];
         }
     }
+}
+
+- (void)finishOpeningLaunchFiles
+{
+    // Let documents being opened finish loading before ending the cold start.
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        [MPDocument applicationDidFinishOpeningLaunchFiles];
+    }];
 }
 
 - (void)openPendingFiles

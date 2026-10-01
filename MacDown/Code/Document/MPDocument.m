@@ -35,6 +35,8 @@
 
 static NSString * const kMPDefaultAutosaveName = @"Untitled";
 
+static BOOL MPIsLaunching = YES;
+
 
 NS_INLINE NSString *MPEditorPreferenceKeyWithValueKey(NSString *key)
 {
@@ -471,6 +473,20 @@ static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
     controller.window.frameAutosaveName = autosaveName;
     self.autosaveName = autosaveName;
 
+    // Cold-started files show only the preview. Otherwise follow the pane
+    // layout of the current window, if there is one.
+    BOOL collapsesEditor = (MPIsLaunching && self.fileURL);
+    CGFloat splitRatio = -1.0;
+    CGFloat previousSplitRatio = -1.0;
+    id current = [NSDocumentController sharedDocumentController].currentDocument;
+    if (!collapsesEditor && current != self
+            && [current isKindOfClass:[MPDocument class]])
+    {
+        MPDocument *template = current;
+        splitRatio = template.splitView.dividerLocation;
+        previousSplitRatio = template.previousSplitRatio;
+    }
+
     // Perform initial resizing manually because for some reason untitled
     // documents do not pick up the autosaved frame automatically in 10.10.
     NSString *rectString = MPRectStringForAutosaveName(autosaveName);
@@ -549,10 +565,24 @@ static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
     // can have the correct dimention for size-limiting and stuff. See
     // https://github.com/uranusjr/macdown/issues/236
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        if (collapsesEditor && self.editorVisible)
+        {
+            [self toggleSplitterCollapsingEditorPane:YES];
+        }
+        else if (splitRatio >= 0.0)
+        {
+            self.previousSplitRatio = previousSplitRatio;
+            [self setSplitViewDividerLocation:splitRatio];
+        }
         [self setupEditor:nil];
         [self redrawDivider];
         [self reloadFromLoadedString];
     }];
+}
+
++ (void)applicationDidFinishOpeningLaunchFiles
+{
+    MPIsLaunching = NO;
 }
 
 - (void)reloadFromLoadedString
