@@ -589,8 +589,25 @@ static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
 {
     if (self.loadedString && self.editor && self.renderer && self.highlighter)
     {
+        // On an external-change reload the editor already has content; keep
+        // the cursor and scroll position where they were.
+        BOOL isReload = self.editor.string.length > 0;
+        NSRange selection = self.editor.selectedRange;
+        NSScrollView *scrollView = self.editor.enclosingScrollView;
+        NSPoint origin = scrollView.contentView.bounds.origin;
+
         self.editor.string = self.loadedString;
         self.loadedString = nil;
+
+        if (isReload)
+        {
+            NSUInteger length = self.editor.string.length;
+            selection.location = MIN(selection.location, length);
+            selection.length = MIN(selection.length, length - selection.location);
+            self.editor.selectedRange = selection;
+            [scrollView.contentView scrollToPoint:origin];
+            [scrollView reflectScrolledClipView:scrollView.contentView];
+        }
         [self.renderer parseAndRenderNow];
         [self.highlighter parseAndHighlightNow];
     }
