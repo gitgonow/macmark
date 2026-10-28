@@ -236,6 +236,8 @@ typedef NS_ENUM(NSUInteger, MPWordCountType) {
 @property (strong) NSMenuItem *charMenuItem;
 @property (strong) NSMenuItem *charNoSpacesMenuItem;
 @property (nonatomic) BOOL needsToUnregister;
+@property (strong) NSTimer *externalChangeTimer;
+@property (nonatomic) BOOL checkingExternalChange;
 @property (nonatomic) BOOL alreadyRenderingInWeb;
 @property (nonatomic) BOOL renderToWebPending;
 @property (strong) NSArray<NSNumber *> *webViewHeaderLocations;
@@ -577,12 +579,49 @@ static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
         [self setupEditor:nil];
         [self redrawDivider];
         [self reloadFromLoadedString];
+        [self startWatchingForExternalChanges];
     }];
 }
 
 + (void)applicationDidFinishOpeningLaunchFiles
 {
     MPIsLaunching = NO;
+}
+
+// File presenter notifications are not delivered for changes made on a network
+// share (SMB) or by another machine, so poll the file's modification date.
+- (void)startWatchingForExternalChanges
+{
+    __weak MPDocument *weakSelf = self;
+    self.externalChangeTimer = [NSTimer
+        scheduledTimerWithTimeInterval:1.0 repeats:YES block:^(NSTimer *t) {
+            [weakSelf checkForExternalChange];
+        }];
+}
+
+- (void)checkForExternalChange
+{
+    NSURL *url = self.fileURL;
+    NSDate *known = self.fileModificationDate;
+    if (!url || !known || self.checkingExternalChange || self.isDocumentEdited)
+        return;
+
+    // Stat off the main thread; a slow share must not stall the UI.
+    self.checkingExternalChange = YES;
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0), ^{
+        NSDate *modified = [[NSFileManager defaultManager]
+            attributesOfItemAtPath:url.path error:NULL].fileModificationDate;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.checkingExternalChange = NO;
+            if (!modified || self.isDocumentEdited
+                    || ![self.fileURL isEqual:url]
+                    || [modified compare:self.fileModificationDate]
+                        != NSOrderedDescending)
+                return;
+            NSError *error = nil;
+            [self revertToContentsOfURL:url ofType:self.fileType error:&error];
+        });
+    });
 }
 
 - (void)reloadFromLoadedString
@@ -622,6 +661,9 @@ static void (^MPGetPreviewLoadingCompletionHandler(MPDocument *doc))()
         self.needsToUnregister = NO;
 
         // Need to cleanup these so that callbacks won't crash the app.
+        [self.externalChangeTimer invalidate];
+        self.externalChangeTimer = nil;
+
         [self.highlighter deactivate];
         self.highlighter.targetTextView = nil;
         self.highlighter = nil;
